@@ -1,11 +1,16 @@
 define([
-    'base/js/namespace'
+    'base/js/namespace',
+    './app'
 ], function(
-    Jupyter
+    Jupyter,
+    orchestra
 ) {
+
+    console.log(orchestra);
+
     function load_ipython_extension() {
         console.log(
-            'This is the current notebook application instance:',
+            'This is the current notebook application instance, as logged from main.js in an extension:',
             Jupyter.notebook
         );
     }

@@ -1,0 +1,187 @@
+
+a {
+    cursor: pointer;
+}
+body {
+    margin: 0px;
+    overflow: hidden;
+}
+canvas {
+    position:  absolute;
+    top: 0px;
+    left: 0px;
+}
+.TOP {
+    position: absolute;
+    z-index: 10;
+    background-color: rgba(255,255,255,0.2);
+    top: 0px;
+    left: 0px;
+}
+.navbar {
+    z-index: 20;
+    border-radius: 0px !important;
+}
+.navbar-project-title {
+    /*text-transform: capitalize;*/
+    float: left;
+    height: 50px;
+    padding: 15px 15px;
+    font-size: 17px;
+    line-height: 20px;
+    font-style: italic;
+}
+.titleChangerWidget {display: none;}
+#titleChanger {width: 400px;}
+
+/* Main Component Styling */
+div.componentLabel {
+    border: 1px solid black;
+    border-radius: 60px;
+    height: 80px;
+    width: 240px;
+    text-align: center;
+    font-size: 30px;
+    line-height: 80px;
+    text-transform: capitalize;
+    cursor: pointer;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/*
+Support for mixing status colors for separate properties: Preview, Sufficiency/Error, Selection
+https://css-tricks.com/tinted-images-multiple-backgrounds/
+Preview / Not = grey or white solid alpha image
+Sufficiency / Error = clear, orange, or red transparent .TOP.workspaceOverlay
+Selection = Thick green border
+*/
+
+div.componentLabel.insufficient {background-color: #ffca3d;}
+div.componentLabel.sufficient {background-color: #e8e8e8;}
+div.componentLabel.error {background-color: orangered;}
+
+/*div.componentLabel.previewOff.insufficient {background-color: lightgray;}*/
+div.componentLabel.previewOff.sufficient {background-color:#999999;}
+div.componentLabel.previewOff.error {background-color:orangered}
+
+div.IO {
+    box-sizing: border-box;
+    position: absolute;
+    display: block;
+    background-color: #ff870c;
+    top: 0px;
+    left: 0px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50px;
+
+    color: white;
+    font-size: 35px;
+    line-height: 50px;
+    text-align: center;
+    font-weight: bold;
+
+    -webkit-user-select: none;       
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    -o-user-select: none;
+    user-select: none;
+}
+div.IO:hover {
+    box-sizing: border-box;
+    border: 5px solid orange;
+    cursor: pointer;
+}
+div.IO.glHover {
+    background-color: red;
+}
+
+.glHover input {
+    border: 10px solid red;
+}
+.dragging {
+    pointer-events: none;
+}
+
+/* Slider custom overrides. Can be copied to slider's CSS eventually */
+.slider {
+    z-index: 20; /* Make sure the tooltip comes above bootstrap nav items */
+    margin-left: -100px;
+    margin-top: -50px;
+}
+.slider .tooltip {
+    background-color: transparent;
+}
+.TOP.workspaceOverlay {
+    z-index: 19;
+    background-color: rgba(0,0,0,0.5);
+    width: 50%;
+    height: 100%;
+    border: none;
+}
+
+/* Context menu stuff */
+.context-menu {
+    position: absolute;
+    display: none;
+}
+.context-menu .dropdown-menu {
+    top: 0;
+    display: block;
+}
+.context-menu .icongutter {
+    width: 30px;
+    display: inline-block;
+}
+.context-menu input {
+    border-radius: 17px;
+    border: 1px solid lightgray;
+    padding-left: 23px;
+}
+.context-menu input:focus {
+    outline-width: 0;
+}
+.context-menu .comp_Name {
+    height: 40px;
+    vertical-align: middle;
+    line-height: 40px;
+    margin-left: 20px;
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Roaming component searchbar / typeahead */
+.mobileComponentSearchInput {
+    z-index: 20;
+    position: absolute;
+    display: block;
+}
+
+/* TableView - text entry for number & boolean components */
+.tableView {
+    display: block;
+    position: absolute;
+    height: 250px;
+    width: 200;
+    background-color: white;
+    z-index: 20;
+    font-family: monospace;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#editableTable {width: 100%;}
+#editableTable tr {width: 100%;}
+#editableTable tr td {width: 100%;padding: 4px;}
+#editableTable .headerRow {
+    font-weight: bold;
+    text-align: right;
+    background-color: #aaaaaa;
+}
+#editableTable tbody tr:nth-child(odd) {
+    background-color: #dedede;
+}
