@@ -53,7 +53,11 @@ define(['require'], function(require){
 
                     workspace.createWorkspace();
 
+                    // For initial, non-persisted testing
+                    this.currentProject = new OrchestraProject();
+
                     // New components can be created directly in the workspace, as well as from the global nav:
+                    var that = this;
                     workspace.on('createNewComponent',function(component){
                         that.newComponent.call(that,component);
                     });
