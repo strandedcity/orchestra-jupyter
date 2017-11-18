@@ -1,8 +1,9 @@
 define([
         "underscore",
         "dataFlow/core",
+        "dataFlow/components/number",
         "dataFlow/components/treeComponents"
-    ],function(_,core,tree){
+    ],function(_,core,number,tree){
         var dataFlow = {};
         dataFlow = _.extend(dataFlow,core);
 
@@ -26,6 +27,7 @@ define([
         }
 
         registerModule(tree, "tree");
+        registerModule(number, "number");
 
         // TODO: Use this ONCE to create an index, then use the index ?
         dataFlow.iterateComponents = function(callbackNameFunction){
