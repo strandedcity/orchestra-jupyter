@@ -2,8 +2,9 @@ define([
     "underscore",
     "dataFlow/core",
     "dataFlow/dataTree",
-    "dataFlow/dataMatcher"
-],function(_,DataFlow,DataTree,DataMatcher){
+    "dataFlow/dataMatcher",
+    "dataFlow/components/engine"
+],function(_,DataFlow,DataTree,DataMatcher,PythonEngine){
     var components = {};
 
     components.NumberComponent = DataFlow.Component.extend({
@@ -24,8 +25,32 @@ define([
             });
             this.base_init(args);
         },
-        recalculateTrees: function(){
-            this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
+        // recalculateTrees: function(){
+        //     this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
+        // },
+        recalculate: function(numberInput){
+            console.log('calling recalc with ' + numberInput);
+            var np = numberInput instanceof Promise ? numberInput : new Promise(function(resolve,reject){resolve(numberInput)});
+
+            var outputNPromise = new Promise(function(resolve,reject){
+                Promise.all([np]).then(function(n){
+                    console.log('inside promise all: '+n);
+
+                    var outputVariable = _.uniqueId("number_");
+                    var pythonCode = outputVariable + " = " + n + "\n";
+                    console.log('gonna call the python now...',pythonCode);
+
+                    PythonEngine.execute({
+                        pythonCode: pythonCode,
+                        statusSet: function(status){console.log("STATUS OF NUMBER COMPONENT: "+status)},
+                        success: function () { console.log("status success"); resolve(outputVariable) },
+                        error: function (errorObject) { console.log("status error: ",errorObject); reject() },
+                        setOutput: function (outputDisplay) { console.log(outputDisplay) }
+                    })
+                });
+            });
+
+            return {N: outputNPromise};
         }
     },{
         "label": "Number",
