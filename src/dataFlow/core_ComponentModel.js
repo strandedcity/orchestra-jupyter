@@ -70,7 +70,7 @@ define([
             }
 
             this._sufficient = false;
-            _.bindAll(this,"_handleInputChange","_propagatePulse");
+            _.bindAll(this,"_handleInputChange","_propagatePulse","recalculate");
 
             // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
             this.outputs = this.initializeOutputs(_.isUndefined(opts.outputs) ? [opts.output] : opts.outputs);

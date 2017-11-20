@@ -29,16 +29,13 @@ define([
         //     this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
         // },
         recalculate: function(numberInput){
-            console.log('calling recalc with ' + numberInput);
             var np = numberInput instanceof Promise ? numberInput : new Promise(function(resolve,reject){resolve(numberInput)});
 
             var outputNPromise = new Promise(function(resolve,reject){
                 Promise.all([np]).then(function(n){
-                    console.log('inside promise all: '+n);
 
                     var outputVariable = _.uniqueId("number_");
                     var pythonCode = outputVariable + " = " + n + "\n";
-                    console.log('gonna call the python now...',pythonCode);
 
                     PythonEngine.execute({
                         pythonCode: pythonCode,
