@@ -180,6 +180,7 @@ define([
                     errors.push(e.stack);
                     // console.log('Runtime error during calculation process. Inputs:\n',rowData,'\nCalculation Error:\n', e.stack);
                 }
+                console.log('setting output data as: ',result)
                 outputTree.setDataAtPath(result,destPath);
 
                 // THIS HAS BEEN REPLACED BY THE OUTPUTS LOOP BELOW, WHICH USES 'REPLACEDATA' INSTEAD
@@ -231,7 +232,25 @@ define([
                     return list[i];
                 });
                 results[i] = calculation.apply(this,args);
+
+                // Arguments to recalculate() can be values or promises. Resolve the promises, then calculate.
+                // Promise.all(args).then(function (values) {
+                //     results[i] = calculation.apply(this,values);
+                // })
+                //
+                // results[i] = new Promise(function (resolve,reject) {
+                //     Promise.all(args).then(function (values) {
+                //         console.log("DATAMATCHER VALUES: ",values);
+                //         var calc = calculation.apply(this,values);
+                //         console.log("CALCULATION RETURN VALUE: ",calc)
+                //
+                //         resolve(calc);
+                //     })
+                // })
+
+
             }
+            // console.log("RESULTS: ",results)
             return results;
         }
 

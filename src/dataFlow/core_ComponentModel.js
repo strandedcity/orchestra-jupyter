@@ -70,7 +70,7 @@ define([
             }
 
             this._sufficient = false;
-            _.bindAll(this,"_handleInputChange","_propagatePulse","recalculate");
+            _.bindAll(this,"_handleInputChange","_propagatePulse","recalculate","getOutputVariableName","validatePythonTemplate");
 
             // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
             this.outputs = this.initializeOutputs(_.isUndefined(opts.outputs) ? [opts.output] : opts.outputs);
@@ -81,6 +81,12 @@ define([
 
             this.set('componentPrettyName', opts.componentPrettyName);
             this.set('preview',opts.preview || false);
+            this.set('pythonTemplate',opts.pythonTemplate);
+            if (opts.pythonTemplate) {
+                this.validatePythonTemplate(opts.pythonTemplate);
+                this.pythonTemplateFn = _.template(opts.pythonTemplate);
+                _.bindAll(this,"pythonTemplateFn");
+            }
             this.previews = [];
 
             // Update previews. This is sort of "view stuff" but it's close to being "data stuff." Located here for now.
@@ -90,6 +96,29 @@ define([
                     this.drawPreviews();
                 }
             });
+        },
+        validatePythonTemplate: function () {
+            var requiredReferences = [],
+                that=this;
+            _.each(this.inputs,function(i){
+                requiredReferences.push("IN_"+i.shortName);
+            });
+            // Outputs don't each get their own calculation, so this is not required.
+            // Instead, there's one calculation and we assume we'll be able to extract values from that (ie, tuple indices)
+            // _.each(this.outputs,function(o){
+            //     requiredReferences.push("OUT_"+o.shortName);
+            // });
+            _.each(requiredReferences,function (r) {
+                if (that.get('pythonTemplate').indexOf(r) < 0) {
+                    throw new Error("Component is badly coded. Its inputs and outputs are not referenced by its python template, so they'll never be used.");
+                }
+            })
+        },
+        getOutputVariableName: function () {
+            var name = this.get('componentPrettyName');
+            if (name.length < 1) name = this.componentName;
+            name = name + "_";
+            return _.uniqueId(name.toLowerCase().replace(/[^a-z]/g,'_'));
         },
         initializeOutputs: function(outputs){
             var that = this;

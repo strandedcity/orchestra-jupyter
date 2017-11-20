@@ -28,24 +28,22 @@ define([
         // recalculateTrees: function(){
         //     this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
         // },
-        recalculate: function(numberInput){
-            var np = numberInput instanceof Promise ? numberInput : new Promise(function(resolve,reject){resolve(numberInput)});
-
-            var outputNPromise = new Promise(function(resolve,reject){
-                Promise.all([np]).then(function(n){
-
+        recalculate: function(n){
+            console.log("NUMBER n "+n)
+            var outputNPromise = Promise.all(arguments).then(function(){
+                var n = arguments[0];
+                return new Promise(function(resolve,reject){
                     var outputVariable = _.uniqueId("number_");
                     var pythonCode = outputVariable + " = " + n + "\n";
 
-                    PythonEngine.execute({
-                        pythonCode: pythonCode,
+                    PythonEngine.execute(pythonCode, {
                         statusSet: function(status){console.log("STATUS OF NUMBER COMPONENT: "+status)},
                         success: function () { console.log("status success"); resolve(outputVariable) },
                         error: function (errorObject) { console.log("status error: ",errorObject); reject() },
                         setOutput: function (outputDisplay) { console.log(outputDisplay) }
                     })
                 });
-            });
+            })
 
             return {N: outputNPromise};
         }

@@ -95,19 +95,19 @@ define([], function(){
         };
 
         this._executeNext = function(){
+            console.warn('EXECUTE NEXT IS PROBABLY BROKEN. IT HAS NOT BEEN TESTED YET');
             // do the next execution in the queue
             var next = that.executionQueue.shift();
-            that.execute(next);
+            that.execute.apply(this,next);
 
             // TODO: PROXY THE CALLBACKS, AND EXECUTE THE NEXT CALCULATION IN THE QUEUE
         };
 
-        this.execute = function(calculation){
-            var pythonCode = calculation.pythonCode,
-                statusSet = calculation.statusSet, // WAITING, RUNNING, DONE, ERROR
-                success = calculation.success,
-                error = calculation.error,
-                setOutput = calculation.setOutput || function(){};
+        this.execute = function(pythonCode, callbacks){
+            var statusSet = callbacks.statusSet, // WAITING, RUNNING, DONE, ERROR
+                success = callbacks.success,
+                error = callbacks.error,
+                setOutput = callbacks.setOutput || function(){};
 console.log('now inside python engine execute')
             // Build Jupyter-style callbacks, see above.
             // Everything we need is in the 'reply' and 'output' callbacks
@@ -155,7 +155,7 @@ console.log('setup complete?',that.setupComplete);
                     }
                 );
             } else {
-                that.executionQueue.push(calculation);
+                that.executionQueue.push(arguments);
             }
         }
     }
