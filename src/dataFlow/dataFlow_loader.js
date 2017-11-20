@@ -3,8 +3,9 @@ define([
         "dataFlow/core",
         "dataFlow/components/number",
         "dataFlow/components/simplemath",
-        "dataFlow/components/treeComponents"
-    ],function(_,core,number,simplemath,tree){
+        "dataFlow/components/treeComponents",
+        "dataFlow/components/numpy_create"
+    ],function(_,core,number,simplemath,tree,numpy_create){
         var dataFlow = {};
         dataFlow = _.extend(dataFlow,core);
 
@@ -30,6 +31,7 @@ define([
         registerModule(tree, "tree");
         registerModule(number, "number");
         registerModule(simplemath, "simplemath");
+        registerModule(numpy_create, "numpy_create");
 
         // TODO: Use this ONCE to create an index, then use the index ?
         dataFlow.iterateComponents = function(callbackNameFunction){

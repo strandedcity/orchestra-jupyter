@@ -3,8 +3,8 @@ define([
     "dataFlow/core",
     "dataFlow/dataTree",
     "dataFlow/dataMatcher",
-    "dataFlow/components/engine"
-],function(_,DataFlow,DataTree,DataMatcher,PythonEngine){
+    // "dataFlow/components/engine"
+],function(_,DataFlow,DataTree,DataMatcher){
     var components = {};
 
     components.NumberComponent = DataFlow.Component.extend({
@@ -21,32 +21,33 @@ define([
                 componentPrettyName: "Number"
             }, opts || {},{
                 inputs: inputs,
-                outputs: output
+                outputs: output,
+                pythonTemplate: "<%= RESULT %> = <%= IN_N %>\n" // OUTPUT = N
             });
             this.base_init(args);
         },
         // recalculateTrees: function(){
         //     this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
         // },
-        recalculate: function(n){
-            console.log("NUMBER n "+n)
-            var outputNPromise = Promise.all(arguments).then(function(){
-                var n = arguments[0];
-                return new Promise(function(resolve,reject){
-                    var outputVariable = _.uniqueId("number_");
-                    var pythonCode = outputVariable + " = " + n + "\n";
-
-                    PythonEngine.execute(pythonCode, {
-                        statusSet: function(status){console.log("STATUS OF NUMBER COMPONENT: "+status)},
-                        success: function () { console.log("status success"); resolve(outputVariable) },
-                        error: function (errorObject) { console.log("status error: ",errorObject); reject() },
-                        setOutput: function (outputDisplay) { console.log(outputDisplay) }
-                    })
-                });
-            })
-
-            return {N: outputNPromise};
-        }
+        // recalculate: function(n){
+        //     console.log("NUMBER n "+n)
+        //     var outputNPromise = Promise.all(arguments).then(function(){
+        //         var n = arguments[0];
+        //         return new Promise(function(resolve,reject){
+        //             var outputVariable = _.uniqueId("number_");
+        //             var pythonCode = outputVariable + " = " + n + "\n";
+        //
+        //             PythonEngine.execute(pythonCode, {
+        //                 statusSet: function(status){console.log("STATUS OF NUMBER COMPONENT: "+status)},
+        //                 success: function () { console.log("status success"); resolve(outputVariable) },
+        //                 error: function (errorObject) { console.log("status error: ",errorObject); reject() },
+        //                 setOutput: function (outputDisplay) { console.log(outputDisplay) }
+        //             })
+        //         });
+        //     })
+        //
+        //     return {N: outputNPromise};
+        // }
     },{
         "label": "Number",
         "desc": "Holds a list of numbers. For short lists, you can enter the numbers directly into the component"

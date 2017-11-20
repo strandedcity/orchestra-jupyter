@@ -23,14 +23,10 @@ define([],function(){
         OUTPUT_TYPES: {
             NUMBER: 0,
             BOOLEAN: 1,
-            POINT: 2,
-            CURVE: 3,
-            SURFACE: 4,
+            NUMPY_ARR: 2,
             WILD: 5,
             NULL: 6,
-            PLANE: 7,
             ARRAY: 8,
-            MATRIX4: 9 // transform matrices
         },
         KEYS: {
             SHIFT: 16

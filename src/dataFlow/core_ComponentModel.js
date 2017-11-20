@@ -4,8 +4,9 @@ define([
     "dataFlow/core_IOModels",
     "dataFlow/pulse",
     "dataFlow/enums",
-    "dataFlow/dataMatcher"
-],function(_,Backbone, IOModels, Pulse, ENUMS, DataMatcher){
+    "dataFlow/dataMatcher",
+    "dataFlow/components/engine"
+],function(_,Backbone, IOModels, Pulse, ENUMS, DataMatcher, PythonEngine){
 
 
     var component = Backbone.Model.extend({
@@ -103,6 +104,10 @@ define([
             _.each(this.inputs,function(i){
                 requiredReferences.push("IN_"+i.shortName);
             });
+
+            // Obviously, we should save the reference to the result
+            requiredReferences.push("RESULT");
+
             // Outputs don't each get their own calculation, so this is not required.
             // Instead, there's one calculation and we assume we'll be able to extract values from that (ie, tuple indices)
             // _.each(this.outputs,function(o){
@@ -275,6 +280,56 @@ define([
             return _.every(this.outputs,function(out){
                 return out.getTree().isEmpty();
             });
+        },
+        recalculate: function(){
+            var that=this;
+
+            var outputPromise = Promise.all(arguments).then(function(){
+                // function will be passed resolved values from arguments to recalculate
+                // recalculate is called with input values (or promises for input values) in the order in which they
+                // are defined in the component. So "Add(A,B)" will pass values for A and B to recalculate.
+                var resolvedValues = arguments[0];
+                return new Promise(function(resolve,reject){
+                    var outputVariable = that.getOutputVariableName();
+                    var templateVars = {RESULT: outputVariable};
+                    _.each(that.inputs,function(input,index){
+                        templateVars["IN_"+input.shortName] = resolvedValues[index];
+                    });
+                    var pythonCode = that.pythonTemplateFn(templateVars);
+
+                    console.log("PYTHON CODE: "+pythonCode);
+
+                    PythonEngine.execute(pythonCode, {
+                        statusSet: function(status){console.log("STATUS OF NUMBER COMPONENT: "+status)},
+                        success: function () { console.log("status success"); resolve(outputVariable) },
+                        error: function (errorObject) { console.log("status error: ",errorObject); reject() },
+                        setOutput: function (outputDisplay) { console.log("OUTPUT OF ADDITION: ",outputDisplay) }
+                    })
+                });
+            });
+
+            // Build return object. For simple outputs, this is just {N: outputPromise}
+            // For complex outputs that need to be pulled out of a tuple, there's a second promise tacked on so that the
+            // variable name used in calculation (eg, "number_addition_29") can have an index attached to it
+            // (eg, "number_addition_29[1]" to reference the second value in the returned tuple in python-land
+            var retObj = {};
+            if (this.outputs.length === 1) {
+                // When one output, the output here is just the variable assigned (in python) to hold the output
+                retObj[this.outputs[0].shortName] = outputPromise
+            } else {
+                // Otherwise, we can assume python is returning a tuple, which gets assigned to the variable above.
+                // In which case, the tuple's values can each be referenced by downstream functions via their indexes
+                // This means that the outputs of a component are assumed to match (in their order) the positions of
+                // outputs from the corresponding python function
+                _.each(this.outputs,function (o,idx) {
+                    retObj[o.shortName] = outputPromise.then(function (varName) {
+                        return new Promise(function (resolve) {
+                            return resolve(varName + "[" + idx + "]")
+                        })
+                    });
+                });
+            }
+            return retObj;
         },
         simulatedRecalculate: function(){
             // MUST REMAIN A NO-OP
