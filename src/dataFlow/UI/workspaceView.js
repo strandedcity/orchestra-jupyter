@@ -180,7 +180,7 @@ define([
         $renderElement.on('mouseenter','.freezeZooming',function(){$renderElement.addClass("freezeZooming");});
 
         this.controls.noRotate = true;
-        this.controls.zoomSpeed = 2.0;
+        this.controls.zoomSpeed = 0.8;
         this.controls.addEventListener( 'change', this.render );
         $(this.controls.domElement).on('dblclick',{workspace: that},this.showChooser);
         $(this.controls.domElement).on('click',{workspace: that},this.hideChooser);
