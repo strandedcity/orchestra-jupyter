@@ -174,6 +174,11 @@ define([
     Workspace.prototype.attachControls = function(){
         var that = this;
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
+
+        var $renderElement = $(this.renderer.domElement);
+        $renderElement.on('mouseleave','.freezeZooming',function(){$renderElement.removeClass("freezeZooming");});
+        $renderElement.on('mouseenter','.freezeZooming',function(){$renderElement.addClass("freezeZooming");});
+
         this.controls.noRotate = true;
         this.controls.zoomSpeed = 2.0;
         this.controls.addEventListener( 'change', this.render );

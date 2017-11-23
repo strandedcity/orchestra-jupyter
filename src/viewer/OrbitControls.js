@@ -44,8 +44,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.zoomSpeed = 1.0;
 
 	// Limits to how far you can dolly in and out
-	this.minDistance = 0;
-	this.maxDistance = Infinity;
+	this.minDistance = 400;
+	this.maxDistance = 30000;
 
 	// Set to true to disable this control
 	this.noRotate = false;
@@ -265,7 +265,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		// restrict radius to be between desired limits
 		radius = Math.max( this.minDistance, Math.min( this.maxDistance, radius ) );
-		
+
 		// move target to panned location
 		this.target.add( pan );
 
@@ -432,6 +432,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}
 
 	function onMouseWheel( event ) {
+
+		if (scope.domElement.className.indexOf('freezeZooming') > -1) return;
 
 		if ( scope.enabled === false || scope.noZoom === true ) return;
 

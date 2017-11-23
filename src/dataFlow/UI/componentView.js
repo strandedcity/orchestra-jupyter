@@ -1,11 +1,12 @@
 define([
+    "jquery",
     'dataFlow/dataFlow_loader',
     "dataFlow/UI/workspaceView",
     "dataFlow/UI/inputOutputView",
     "underscore",
     "backbone",
     "dataFlow/dataTree"
-],function(DataFlow, workspace, ioView, _, Backbone, DataTree){
+],function($, DataFlow, workspace, ioView, _, Backbone, DataTree){
     var INPUT_HEIGHT = 60;
 
     /* Almost all components will use the regular ol' component view. But as other view types evolve, they can be employed easily here */
@@ -58,7 +59,7 @@ define([
 
             createComponentWithNamePosition: function(name, x, y){
                 var element = document.createElement( 'div' );
-                element.className = 'draggable PrintComponent';
+                element.className = 'draggable PrintComponent freezeZooming';
 
                 var label = document.createElement( 'div' );
                 label.className = 'printComponentTextArea';
