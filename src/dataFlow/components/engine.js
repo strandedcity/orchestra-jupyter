@@ -108,7 +108,6 @@ define([], function(){
                 success = callbacks.success,
                 error = callbacks.error,
                 setOutput = callbacks.setOutput || function(){};
-console.log('now inside python engine execute')
             // Build Jupyter-style callbacks, see above.
             // Everything we need is in the 'reply' and 'output' callbacks
             //
@@ -125,7 +124,6 @@ console.log('now inside python engine execute')
             // output.content = {name: "stdout", text: "hello"} #(when printing "hello")
             // output.msg_type = "stream"
 
-console.log('setup complete?',that.setupComplete);
             if (that.setupComplete) {
                 // execute the calculation. Might be nice to put some status in here, as some operations could run long
                 statusSet("RUNNING");

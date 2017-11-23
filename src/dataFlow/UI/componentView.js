@@ -21,9 +21,67 @@ define([
         } else if (component.componentName === "BooleanToggleComponent") {
             console.log('creating toggler')
             return new BooleanToggleComponentView(component);
+        } else if (component.componentName === "PrintComponent") {
+            return new PrintComponentView(component);
         } else {
             return new ComponentView(component);
         }
+    }
+
+    function PrintComponentView(component) {
+        /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
+         * the slider, but not the display of the slider itself. */
+        var that = this;
+        _.extend(this,ComponentView.prototype,{
+            displayVals: function(){
+                // Because the outputs are promises, we need to capture their resolved values rather than printing directly
+                var textOutput = "", dataAndNodes = [];
+                that.component.getOutput("D").getTree().recurseTree(function (data, node) {
+                    dataAndNodes.push(node);
+                    _.each(data,function (d) {
+                        dataAndNodes.push(d);
+                    })
+                });
+                Promise.all(dataAndNodes).then(function (values) {
+                    _.each(values,function(val,index){
+                        if (val.constructor.name === "Node") {
+                            textOutput += "{" + val.getPath() + "}";
+                        } else {
+                            // it's data! Should look like: {text: "[ 0.  0.  0.  0.  0.]↵", name: "stdout"}
+                            textOutput += val.text.replace(/\n/g,"<br>");
+                        }
+                        textOutput += "<br>";
+                    });
+                    that.printArea.innerHTML = textOutput;
+                });
+            },
+
+            createComponentWithNamePosition: function(name, x, y){
+                var element = document.createElement( 'div' );
+                element.className = 'draggable PrintComponent';
+
+                var label = document.createElement( 'div' );
+                label.className = 'printComponentTextArea';
+                that.printArea = label;
+                element.appendChild( label );
+                element.width = "700px";
+                element.height = "320px";
+
+                var cssObject = new THREE.CSS3DObject( element );
+                cssObject.position.x = x || 0;
+                cssObject.position.y = y || 0;
+                cssObject.position.z = 0;
+
+                workspace.scene.add(cssObject);
+                element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
+
+                return cssObject;
+            }
+        });
+
+        that.init(component);
+
+        that.listenTo(that.component.getOutput("D"),"change",that.displayVals);
     }
 
     function BooleanToggleComponentView(component){
@@ -203,6 +261,8 @@ define([
         label.className = 'componentLabel';
         label.textContent = name;
         element.appendChild( label );
+        element.width = "240px";
+        element.height = "80px";
 
         var cssObject = new THREE.CSS3DObject( element );
         cssObject.position.x = x || 0;
@@ -241,7 +301,8 @@ define([
         var invisibleInputCount = _.filter(IOModelArray, function(input){ return input.get('invisible') === true; }).length,
             verticalStart = INPUT_HEIGHT * (_.keys(IOModelArray).length - 1 - invisibleInputCount) / 2,
             cssObj = this.cssObject,
-            ioViewConstructor = inputsBoolean ? ioView.InputView : ioView.OutputView;
+            ioViewConstructor = inputsBoolean ? ioView.InputView : ioView.OutputView,
+            componentName = this.component.componentName;
 
         _.each(IOModelArray, function(ioModel,idx){
             if (ioModel.type !== DataFlow.OUTPUT_TYPES.NULL && ioModel.get('invisible') !== true) {
@@ -250,6 +311,7 @@ define([
                 var name = ioModel.shortName,
                     outputCSSObj = this._createIOWithNameAndParent(
                         name,
+                        componentName,
                         cssObj,
                         verticalStart - idx * INPUT_HEIGHT,
                         inputsBoolean,
@@ -265,9 +327,9 @@ define([
         },this);
     };
 
-    ComponentView.prototype._createIOWithNameAndParent = function(name, parentCSSElement, verticalOffset, isInput, dragScope){
+    ComponentView.prototype._createIOWithNameAndParent = function(name, componentName, parentCSSElement, verticalOffset, isInput, dragScope){
         var element = document.createElement("div");
-        element.className = 'draggable IO';
+        element.className = 'draggable IO ' + componentName;
         element.textContent = name;
         parentCSSElement.element.appendChild(element);
 
@@ -275,9 +337,19 @@ define([
 
         parentCSSElement.add(cssObject);
 
+        // Position of the IO elements is tricky.
+        // It's based on the width of the parent element, but we don't actually know what that is until the parent
+        // element is on the page. However, it can and should be coded into the JS, which allows us to position the IOs
+        var parentWidthHalf = 150; // default for 'normal' components. This should be set in 'createComponentWithNamePosition'
+        try {
+            parentWidthHalf = parseInt(parentCSSElement.element.width.replace("px", "")) / 2 + 40;
+        } catch (e) {
+            console.warn("Could not parse 'width' attribute of the component's main CSS Element. This should be set both in code and in CSS, so that element size can be determined (and GL dopplegangers placed) without first rendering the element")
+        }
+
         cssObject.position.z = 0;
         cssObject.position.y = verticalOffset;
-        cssObject.position.x = isInput ? -150 : 150;
+        cssObject.position.x = isInput ? - parentWidthHalf : parentWidthHalf;
         cssObject.element.className += isInput ? ' inputIO' : ' outputIO';
         cssObject.addDraggableScopes([isInput ? "input":"output", dragScope]);
         cssObject.addDroppableScopes([isInput ? "output":"input", dragScope]);
@@ -299,6 +371,11 @@ define([
         rectShape.lineTo( width, height );
         rectShape.lineTo( width, 0 );
         rectShape.lineTo( 0, 0 );
+        // rectShape.moveTo( left, top );
+        // rectShape.lineTo( left, height );
+        // rectShape.lineTo( width, height );
+        // rectShape.lineTo( width, top );
+        // rectShape.lineTo( left, top );
 
         var geometry = new THREE.ShapeGeometry( rectShape );
         geometry.applyMatrix( new THREE.Matrix4().makeTranslation( - width/2,  - height/2, 0) ); // the corresponding css element centers itself on the 3js position

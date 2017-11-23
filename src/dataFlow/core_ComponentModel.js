@@ -300,10 +300,10 @@ define([
                     console.log("PYTHON CODE: "+pythonCode);
 
                     PythonEngine.execute(pythonCode, {
-                        statusSet: function(status){console.log("STATUS OF NUMBER COMPONENT: "+status)},
-                        success: function () { console.log("status success"); resolve(outputVariable) },
-                        error: function (errorObject) { console.log("status error: ",errorObject); reject() },
-                        setOutput: function (outputDisplay) { console.log("OUTPUT OF ADDITION: ",outputDisplay) }
+                        statusSet: function(status){/* */},
+                        success: function () { resolve(outputVariable) },
+                        error: function (errorObject) { console.log("python status ERROR: ",errorObject); reject() },
+                        setOutput: function (outputDisplay) { /* */ }
                     })
                 });
             });

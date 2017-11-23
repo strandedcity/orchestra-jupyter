@@ -54,6 +54,37 @@ div.componentLabel {
     user-select: none;
 }
 
+/* Print Component Styling */
+div.draggable.PrintComponent {
+    /*left: 240px;*/
+}
+div.draggable.PrintComponent.IO {
+    /*left: -240px;*/
+}
+div.printComponentTextArea {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    border: 1px solid black;
+    border-radius: 5px;
+    height: 320px;
+    width: 700px;
+    text-align: left;
+    font-size: 20px;
+    padding: 15px;
+    line-height: 30px;
+    cursor: pointer;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    /*margin-left: 480px;*/
+    background-color: whitesmoke;
+    box-shadow: 9px 9px 19px 0px #444;
+    overflow-y: scroll;
+}
+
 /*
 Support for mixing status colors for separate properties: Preview, Sufficiency/Error, Selection
 https://css-tricks.com/tinted-images-multiple-backgrounds/

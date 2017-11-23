@@ -180,7 +180,7 @@ define([
                     errors.push(e.stack);
                     // console.log('Runtime error during calculation process. Inputs:\n',rowData,'\nCalculation Error:\n', e.stack);
                 }
-                console.log('setting output data as: ',result)
+
                 outputTree.setDataAtPath(result,destPath);
 
                 // THIS HAS BEEN REPLACED BY THE OUTPUTS LOOP BELOW, WHICH USES 'REPLACEDATA' INSTEAD
