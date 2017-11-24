@@ -68,8 +68,8 @@ div.printComponentTextArea {
     height: 320px;
     width: 700px;
     text-align: left;
-    font-size: 20px;
-    padding: 15px;
+    font-size: 15px;
+    padding: 0;
     line-height: 30px;
     cursor: pointer;
 
@@ -83,6 +83,25 @@ div.printComponentTextArea {
     background-color: whitesmoke;
     box-shadow: 9px 9px 19px 0px #444;
     overflow-y: scroll;
+}
+div.printComponentTextArea div {
+    padding: 0 15px;
+}
+
+
+
+div.printComponentTextArea .pathNodeTitle {
+    background-color: #999;
+}
+
+div.printComponentTextArea div.dataRow  {
+    white-space: pre;
+}
+div.printComponentTextArea div.dataRow:nth-child(odd)  {
+    background-color: white;
+}
+div.printComponentTextArea div.dataRow:nth-child(even)  {
+    background-color: #dedede;
 }
 
 /*

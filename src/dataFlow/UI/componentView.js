@@ -32,7 +32,13 @@ define([
     function PrintComponentView(component) {
         /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
          * the slider, but not the display of the slider itself. */
-        var that = this;
+
+
+        var that = this,
+            pathNodeTemplate = _.template("<div class='pathNodeTitle'>{<%= path %>}</div>"),
+            dataTemplate = _.template("<div class='dataRow'><%= text %></div>");
+
+
         _.extend(this,ComponentView.prototype,{
             displayVals: function(){
                 // Because the outputs are promises, we need to capture their resolved values rather than printing directly
@@ -46,12 +52,12 @@ define([
                 Promise.all(dataAndNodes).then(function (values) {
                     _.each(values,function(val,index){
                         if (val.constructor.name === "Node") {
-                            textOutput += "{" + val.getPath() + "}";
+                            textOutput += pathNodeTemplate({path: val.getPath()});
                         } else {
+                            console.log(val);
                             // it's data! Should look like: {text: "[ 0.  0.  0.  0.  0.]↵", name: "stdout"}
-                            textOutput += val.text.replace(/\n/g,"<br>");
+                            textOutput += dataTemplate({text: val.text.replace(/\n/g,"<br />")});
                         }
-                        textOutput += "<br>";
                     });
                     that.printArea.innerHTML = textOutput;
                 });
