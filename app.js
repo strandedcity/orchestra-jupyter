@@ -8,6 +8,8 @@ define([
         "dataFlow/UI/componentView",
         "dataFlow/project",
         "dataFlow/components/engine",
+        "dataFlow/pulse",
+        "dataFlow/freezeCalculations"
     ],
     function(
         $,
@@ -17,7 +19,9 @@ define([
         WS,
         ComponentView,
         OrchestraProject,
-        PythonEngine
+        PythonEngine,
+        Pulse,
+        Freezer
     ){
         // Include general styles
         $("head").append("<link rel='stylesheet' href='"+require.toUrl("src/css/orchestra.css")+"' type='text/css' media='screen'>");
@@ -54,7 +58,8 @@ define([
                 "newProject",
                 "loadParseProject",
                 "clearWorkspace",
-                "loadJSON"
+                "loadJSON",
+                "initializePulses"
             );
 
             this.workspace = new WS.Workspace();
@@ -90,6 +95,7 @@ define([
         };
 
         App.prototype.clearWorkspace = function(){
+            Freezer.setFrozen(true);
             console.warn('DO SOME TESTS TO MAKE SURE THAT ZOMBIES DONT REMAIN');
 
             // Stop listening to the project to remove ref's to the project
@@ -128,8 +134,6 @@ define([
         };
 
         App.prototype.loadParseProject = function(projectId){
-            console.warn('window.frozen = true');
-            window.frozen = true;
             this.clearWorkspace();
             var that = this;
             require(["dataFlow/projectLoader"],function(Loader){
@@ -137,7 +141,8 @@ define([
                 Loader.loadProjectFromParse(projectId)
                     .then(function(proj){
                         console.log('\n\nLOADED PROJECT FROM PARSE');
-                        console.warn("VIEWER USED TO BE INITIALIZED HERE")
+                        console.warn("VIEWER USED TO BE INITIALIZED HERE");
+                        that.loadWorkspace(proj);
                     })
                     .fail(function(e){
                         if (e && e.code === 100) {
@@ -160,7 +165,7 @@ define([
             require(["dataFlow/projectLoader"],function(Loader){
                 Loader.loadProjectFromUrl(url,function(proj){
                     console.log('\n\nLOADED PROJECT FROM FILE');
-
+                    that.loadWorkspace(proj);
                 });
             });
         };
@@ -177,6 +182,9 @@ define([
         }
 
         App.prototype.loadWorkspace = function(proj){
+            // Make sure no pulses occur while we're loading components and connections
+            Freezer.setFrozen(true);
+
             var that = this;
             this.currentProject = proj;
 
@@ -211,6 +219,35 @@ define([
             if (proj.get('contextData')) {
                 this.workspace.fromJSON(proj.get('contextData')["workspace"]);
             }
+
+            this.initializePulses(proj);
+        };
+
+        App.prototype.initializePulses = function(proj){
+
+            // Unfreeze so we can follow pulses
+            Freezer.setFrozen(false);
+
+            // Trigger "change" events on components with inputs without connections, one per component
+            // These are the beginnings of the "graph"
+            _.each(proj.get('components'),function(cpt){
+                var disconnectedCount = 0;
+                _.each(cpt.inputs,function(ipt){
+                    if (  _.keys(ipt._listeningTo).length === 0 && !ipt.getTree().isEmpty()) {
+                        disconnectedCount++;
+                    } else if (ipt.get('invisible') === true) {
+                        disconnectedCount++;
+                    }
+                });
+
+                // if all inputs to a component are disconnected, trigger a pulse
+                // to make sure the component recalculates now that all connections are in place
+                if (disconnectedCount === cpt.inputs.length) {
+                    //console.log('master trigger now');
+                    var start = cpt.inputs[0];
+                    start.trigger('pulse',new Pulse({startPoint:start}));
+                }
+            });
         };
 
         App.prototype.setupEngine = function (J) {

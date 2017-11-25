@@ -5,8 +5,9 @@ define([
     "dataFlow/pulse",
     "dataFlow/enums",
     "dataFlow/dataMatcher",
-    "dataFlow/components/engine"
-],function(_,Backbone, IOModels, Pulse, ENUMS, DataMatcher, PythonEngine){
+    "dataFlow/components/engine",
+    "dataFlow/freezeCalculations"
+],function(_,Backbone, IOModels, Pulse, ENUMS, DataMatcher, PythonEngine, Freezer){
 
 
     var component = Backbone.Model.extend({
@@ -209,7 +210,7 @@ define([
             console.warn("WINDOW FROZEN. CALCULATION SKIPPED.");
         },5000),
         _handleInputChange: function(){
-            if (window.frozen === true) {
+            if (Freezer.getFrozen() === true) {
                 return this._windowFrozenWarnOnce();
             }
 
