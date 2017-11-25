@@ -71,6 +71,10 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
         });
     }
 
+    function loadProjectFromJson(jsonData, callback) {
+        callback(new Project(jsonData));
+    }
+
     function clearCurrentProject(){
         currentProject = null;
     }
@@ -79,6 +83,7 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
         saveProjectToParse: saveProjectToParse,
         loadProjectFromParse: loadProjectFromParse,
         loadProjectFromUrl: loadProjectFromUrl,
+        loadProjectFromJson:loadProjectFromJson,
         clearCurrentProject: clearCurrentProject
     };
 });

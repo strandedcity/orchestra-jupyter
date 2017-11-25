@@ -58,8 +58,10 @@ define([
         }
     });
 
+    var globalWorkspace = null;
 
     function Workspace(){
+        globalWorkspace = this;
         this.init();
     };
 
@@ -67,11 +69,11 @@ define([
 
         // drag and drop related
         _.extend(this,Backbone.Events);
-        _.bindAll(this, "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject","getCurrentVisibleCenterPoint","hideChooser");
+        _.bindAll(this,"destroy", "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject","getCurrentVisibleCenterPoint","hideChooser");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
-        this.width = window.innerWidth / 2;
+        this.width = window.innerWidth;
         this.height = window.innerHeight;
 
         /* THIS IS IMPORTANT! Large "far" value keeps connection curves from disappearing when you zoom way out on the workspace. */
@@ -102,6 +104,15 @@ define([
         this.setupDraggableEventHandlers();
 
         this.attachMetakeyDetectors();
+    };
+
+    Workspace.prototype.destroy = function () {
+        $(this.renderer.domElement).off().remove();
+        $(this.glrenderer.domElement).off().remove();
+        delete this.controls;
+        delete this.scene;
+        delete this.camera;
+
     };
 
     Workspace.prototype.attachMetakeyDetectors = _.once(function(){
@@ -520,5 +531,10 @@ define([
         return mesh;
     };
 
-    return new Workspace();
+    return {
+        getWorkspaceSingleton: function () {
+            return globalWorkspace;
+        },
+        Workspace: Workspace
+    };
 });

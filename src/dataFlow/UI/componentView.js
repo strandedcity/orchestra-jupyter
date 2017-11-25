@@ -6,7 +6,7 @@ define([
     "underscore",
     "backbone",
     "dataFlow/dataTree"
-],function($, DataFlow, workspace, ioView, _, Backbone, DataTree){
+],function($, DataFlow, WS, ioView, _, Backbone, DataTree){
     var INPUT_HEIGHT = 60;
 
     /* Almost all components will use the regular ol' component view. But as other view types evolve, they can be employed easily here */
@@ -79,7 +79,7 @@ define([
                 cssObject.position.y = y || 0;
                 cssObject.position.z = 0;
 
-                workspace.scene.add(cssObject);
+                WS.getWorkspaceSingleton().scene.add(cssObject);
                 element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
 
                 return cssObject;
@@ -191,7 +191,7 @@ define([
 
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
-            workspace.setupDraggableView(this);  // make the view draggable!
+            WS.getWorkspaceSingleton().setupDraggableView(this);  // make the view draggable!
             if (this.component.get('sufficient') == true) this.changeSufficiency();
             this.listenTo(this.glObject,"changePosition",function(){component.position = this.glObject.position;});
         }.bind(this));
@@ -203,7 +203,7 @@ define([
         this.processIOViews(this.component.outputs,this.outputViews,false);
 
         // call once at the end!
-        workspace.render();
+        WS.getWorkspaceSingleton().render();
 
         // With dom elements created, bind events:
         this.listenTo(this.component,"change:preview",this.changePreviewState);
@@ -276,7 +276,7 @@ define([
         cssObject.position.y = y || 0;
         cssObject.position.z = 0;
 
-        workspace.scene.add(cssObject);
+        WS.getWorkspaceSingleton().scene.add(cssObject);
         element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
 
         return cssObject;
@@ -296,12 +296,12 @@ define([
             }
         });
 
-        workspace.scene.remove(this.cssObject);
-        workspace.glscene.remove(this.glObject);
+        WS.getWorkspaceSingleton().scene.remove(this.cssObject);
+        WS.getWorkspaceSingleton().glscene.remove(this.glObject);
         delete this.component.componentView; // remove references to the view
         delete this.component; // shouldn't be necessary but can't really hurt
 
-        workspace.render(); // get rid of input wires
+        WS.getWorkspaceSingleton().render(); // get rid of input wires
     };
 
     ComponentView.prototype.processIOViews = function(IOModelArray,IOViewsArray,inputsBoolean){
@@ -392,7 +392,7 @@ define([
 
         // If this.glObject is defined, we're talking about a child to be added (ie, an input's glObject)
         // Otherwise, we're talking about the component itself:
-        var glParent = !_.isUndefined(this.glObject) ? this.glObject : workspace.glscene;
+        var glParent = !_.isUndefined(this.glObject) ? this.glObject : WS.getWorkspaceSingleton().glscene;
         glParent.add(mesh);
 
         return mesh;

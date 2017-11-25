@@ -1,44 +1,85 @@
+// This config is the same as appconfig.js... but I cannot get it to work loading app config in any other way than directly in this file
+require.config({
+    // cache busting during development:
+    baseUrl: '/nbextensions/orchestra-jupyter/',
+    urlArgs: "bust=" + (new Date()).getTime(),
+
+    shim: {
+        'backbone': {
+            deps: ['underscore', 'jquery'],
+            exports: 'Backbone'
+        },
+        'parse-lib': {
+            deps: ['jquery'],
+            exports: 'Parse'
+        },
+        'underscore': {
+            exports: '_'
+        },
+        'jquery': {
+            exports: '$'
+        },
+        'bootstrap': {
+            deps: ['jquery']
+        },
+        'bootstrap-slider': {
+            deps: ['bootstrap']
+        },
+        'bootstrap3-typeahead': {
+            deps: ['bootstrap']
+        },
+        'OrbitControls': {
+            deps: ['threejs']
+        },
+        'SVGRenderer': {
+            deps: ['threejs']
+        },
+        'Projector': {
+            deps: ['threejs']
+        },
+        'CSS3DRenderer': {
+            deps: ['threejs']
+        }
+    },
+
+    paths: {
+        // UI
+        viewer: 'src/viewer',
+        threejs: 'src/viewer/three.wrapper',
+        threemin: 'src/viewer/three.min',
+        OrbitControls: 'src/viewer/OrbitControls',
+        SVGRenderer: 'src/viewer/SVGRenderer',
+        Projector: 'src/viewer/Projector',
+        navbar: 'src/application/navbar',
+        componentSearcher: 'src/application/componentSearcher',
+
+        // general libraries
+        jquery: 'lib/jquery-2.1.1.min',
+        backbone: 'lib/backbone-min',
+        "parse-lib": 'lib/parse-1.5.0.min',
+        parse: 'src/dataFlow/parseInitializer',
+        underscore: 'lib/underscore-min',
+        bootstrap: 'lib/bootstrap.min',
+        'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
+        'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
+
+        // geometry & dataflow
+        dataFlow: 'src/dataFlow',
+        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer'
+    }
+});
+
 define([
     'base/js/namespace',
     './app',
-    "./appconfig",
-
     'jquery',
-    'base/js/dialog',
-    'base/js/events',
-    'notebook/js/celltoolbar',
-    'notebook/js/codecell',
+    'base/js/dialog'
 ], function(
     Jupyter,
-    Orchestra,
-    config,
+    OrchestraApplication,
     $,
-    dialog,
-    events,
-    celltoolbar,
-    codecell
+    dialog
 ) {
-
-    console.log(arguments)
-
-    // localize "require" to this module
-    // Orchestra.setupEngine(Jupyter);
-
-    // This file is the main entry point for Jupyter. It provides access to the notebook object,
-    // which probably needs to be passed into orchestra (or glued here) so that things like 'save' and 'run cell'
-    // can work.
-    //
-    // An additional set of APIs to fetch python function signatures would be great (and save writing components
-    // for all of python) but ... not critical.
-
-    // Orchestra and Jupyter both have a lot of interaction. Jupyter has a keyboard manager that lets you disable
-    // keyboard shortcuts in two possible ways:
-    //
-    // >> Automatically re-enables on blur, but needs to be applied each time a context menu appears
-    // Jupyter.notebook.keyboard_manager.register_events(".context-menu")
-    //
-    // >> Turns off Jupyter keyboard until further notice. Simpler for my purposes, but I need to be sure to call .enable() when I'm done
-    // Jupyter.notebook.keyboard_manager.disable()
 
     // In the Jupyter context, it might be nice to expose all available variables defined thus far in the ipython notebook
     // as a pre-populated component with a bunch of outputs.
@@ -46,7 +87,7 @@ define([
 
     // Glue, so that components can calculate using python
 
-    
+
     // var CellToolbar = celltoolbar.CellToolbar;
     // var toolbar_preset_name = 'Initialization Cell';
     // var init_cell_ui_callback = CellToolbar.utils.checkbox_ui_generator(
@@ -67,11 +108,58 @@ define([
     // var callback_notebook_loaded = init_cell_ui_callback;
 
 
-    function load_ipython_extension() {
+    var metadata_key = "orchestraData";
+
+    function disableKeyboard() {
+        console.warn("Disabling Jupyter Keyboard Shortcuts for Orchestra");
+        Jupyter.notebook.keyboard_manager.disable();
+    }
+    function enableKeyboard() {
+        console.warn("Enabling Jupyter Keyboard Shortcuts");
+        Jupyter.notebook.keyboard_manager.enable();
+    }
+
+    function openProjectAttachToCell(cell){
+
+        // Open, keeping a reference to the cell so we can write python and metadata to it
+        console.log("Opening Orchestra Visual Flow Programming");
+
+        // Make sure the user stops interacting with Jupyter
+        disableKeyboard();
+
+        // Instantiate the app, load the orchestra project that's in memory
+        var orchestra_application = new OrchestraApplication(Jupyter);
+        orchestra_application.loadJSON(cell.metadata[metadata_key]);
+        cell['orchestra_application'] = orchestra_application;
+
+        orchestra_application.on('change',function (projectData) {
+            cell.metadata[metadata_key] = projectData;
+        });
+        orchestra_application.on('closed',function (projectData) {
+            cell.metadata[metadata_key] = projectData;
+            enableKeyboard();
+        })
+
+        // The "Close" button is in application no-man's land. Don't want to add it to Orchestra (which shouldn't know about its container)
+        // But don't want to add it here either.
+        // Since this file is the 'glue code', here it goes.
+        var closeButton = $('<button class="btn btn-large closeOrchestraButton" style="z-index:500;position: absolute;top: 10px;left: 10px;">Return to Jupyter</button>');
+        $('body').append(closeButton);
+        closeButton.on('click',function () {
+            orchestra_application.close();
+            closeButton.off();
+            closeButton.hide(250,function () {
+                closeButton.remove();
+            });
+        })
+    }
+
+
+
+    function load_orchestra_toolbar_button() {
         // register action
-        var prefix = 'auto',
-            metadata_key = "orchestraData";
-        var action_name = 'run-initialization-cells';
+        var prefix = 'auto';
+        var action_name = 'run-orchestra-vfp';
         var action = {
             icon: 'fa-cubes',
             help: 'Orchestra Visual Flow Programming',
@@ -84,31 +172,44 @@ define([
                 var cell = options.notebook.get_selected_cell(),
                     isOrchestraProject = typeof cell.metadata[metadata_key] === "object";
 
-                 if (isOrchestraProject) {
-                    // Open, keeping a reference to the cell so we can write python and metadata to it
-                    console.log("Already an orchestra project. Open Orchestra now...")
-                    console.log(cell);
-                    console.log(cell.metadata)
+                if (isOrchestraProject) {
+                    openProjectAttachToCell(cell);
                 } else {
                     // Convert to an "orchestra" cell? Not a good idea use one cell for orchestra and other data
-                    var convertCell = confirm(
-                        "This cell does not have any Orchestra data associated with it. \n\n"+
-                        "Convert cell now?\n\n"+
-                        "Cell contents will be overwritten!"
-                    );
-                    if (convertCell) {
-                        console.log("Converting now...")
+                    // Warn user first
+                    var convertCellText =
+                        "<span style='font-size:15px;'>This cell does not have any Orchestra data associated with it. Convert cell now?<br /><br />"+
+                        "Cell contents will be overwritten!</span>";
+
+                    function createOrchestraCell(){
                         cell.metadata[metadata_key] = {};
                         cell.code_mirror.setValue(
-                            "### This cell holds Orchestra Visual Flow Programming Project Data. \n"+
+                            "### This cell contains Orchestra Visual Flow Programming Project Data. \n"+
                             "### Output variables will be defined here for use lower in your notebook. \n"+
-                            "### Please do not edit this cell's contents directly, as your changes will be overwritten."
+                            "### Please do not edit this cell's contents directly, as your changes may be overwritten.\n"+
+                            "###\n"+
+                            "### If You do not have the Orchestra VFP Extension Installed, please visit:\n"+
+                            '### https://orchestraflowprogramming.com/install-jupyter-extension/\n'
                         );
-                        console.log(cell)
+                        openProjectAttachToCell(cell);
                     }
+
+                    dialog.modal({
+                        buttons: {
+                            "OK": {
+                                "class": "btn btn-primary btn-lg",
+                                "click": createOrchestraCell
+                            },
+                            "Cancel": {
+                                "class": "btn btn-lg",
+                                "click": function () {}
+                            }
+                        },
+                        title: "Convert Cell?",
+                        body: convertCellText,
+                        sanitize: false
+                    });
                 }
-
-
             }
         };
         var action_full_name = Jupyter.notebook.keyboard_manager.actions.register(action, action_name, prefix);
@@ -135,14 +236,9 @@ define([
         //     console.error(log_prefix, 'unhandled error:', reason);
         // });
 
-
-
-        console.warn("Disabling Jupyter Keyboard Shortcuts for Orchestra");
-        Jupyter.notebook.keyboard_manager.disable();
-
     }
 
     return {
-        load_ipython_extension: load_ipython_extension
+        load_ipython_extension: load_orchestra_toolbar_button
     };
 });

@@ -4,7 +4,7 @@ define([
     "underscore",
     "dataFlow/enums",
     "threejs"
-],function(DataFlow, workspace, _, ENUMS){
+],function(DataFlow, WS, _, ENUMS){
 
     /* Base class IOView */
     function IOView(ioModel,glObject,cssObject){
@@ -40,7 +40,7 @@ define([
             // All inputs and outputs are connected via a "stretchy band" to their home positions
             // When dropped on an acceptable input, this line will be drawn as a permanent "connection" instead
             this.glObject.setHomePosition(); // snap-back behavior requires IO elements to know their own home positions. With reference to parent, not world!
-            this.stretchy = workspace.drawCurveFromPointToPoint(this.glObject.getHomePosition(), this.glObject.position);
+            this.stretchy = WS.getWorkspaceSingleton().drawCurveFromPointToPoint(this.glObject.getHomePosition(), this.glObject.position);
             this.glObject.parent.add(this.stretchy);
 
             // NOTE! We want to do as little as possible inside the wire-drawing callback. So the start and end positions are defined by reference a scope outside.
@@ -48,7 +48,7 @@ define([
             this.listenTo(this.glObject,"changePosition",function(){
                 // NOTE: When there's a connection to this node, the INTERNAL line SHOULD NOT be redrawn when the overall component is moved!
                 // Currently, this works because this event listener is attached to the IOView's "changePosition" event, not the component's
-                workspace.drawCurveFromPointToPoint(this.stretchyCurveArguments[0], this.stretchyCurveArguments[1], this.stretchy);
+                WS.getWorkspaceSingleton().drawCurveFromPointToPoint(this.stretchyCurveArguments[0], this.stretchyCurveArguments[1], this.stretchy);
             });
         };
 
@@ -73,7 +73,7 @@ define([
             });
         };
 
-        workspace.setupDraggableView(this);  // make the view draggable!
+        WS.getWorkspaceSingleton().setupDraggableView(this);  // make the view draggable!
         this.setupStretchyWire();
     }
 
@@ -121,7 +121,7 @@ define([
         var outputView = output.IOView;
 
         // must pre-render to make sure that the matrices for the referenced GL elements are updated
-        workspace.render();
+        WS.getWorkspaceSingleton().render();
 
         var that = this;
         this.connectedOutputViews.push(outputView);
@@ -133,7 +133,7 @@ define([
         });
 
         // post-render to make sure the wire gets drawn
-        workspace.render();
+        WS.getWorkspaceSingleton().render();
     };
 
     InputView.prototype.disconnectFromOutput = function(output){
@@ -148,7 +148,7 @@ define([
         wire.parent.remove(wire);
 
         // update the view to this effect
-        workspace.render();
+        WS.getWorkspaceSingleton().render();
     };
 
     InputView.prototype.removeAllWires = function(){
@@ -182,7 +182,7 @@ define([
         var end = (new THREE.Vector3()).setFromMatrixPosition(this.glObject.matrixWorld),
             start = (new THREE.Vector3()).setFromMatrixPosition(outputView.glObject.matrixWorld);
 
-        return workspace.drawCurveFromPointToPoint(start,end,wireView);
+        return WS.getWorkspaceSingleton().drawCurveFromPointToPoint(start,end,wireView);
     };
 
     function OutputView(inputModel,glObject,cssObject) {

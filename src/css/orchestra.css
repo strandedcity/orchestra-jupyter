@@ -10,17 +10,17 @@ canvas {
     position:  absolute;
     top: 0px;
     left: 0px;
-    opacity: 0.7;
+    opacity: 0.9;
 }
 .TOP {
     position: absolute;
-    z-index: 10;
-    background-color: rgba(255,255,255,0.2);
+    z-index: 101;
+    /*background-color: rgba(255,255,255,0.2);*/
     top: 0px;
     left: 0px;
 }
 .navbar {
-    z-index: 20;
+    z-index: 102;
     border-radius: 0px !important;
 }
 .navbar-project-title {
@@ -161,7 +161,7 @@ div.IO.glHover {
 
 /* Slider custom overrides. Can be copied to slider's CSS eventually */
 .slider {
-    z-index: 20; /* Make sure the tooltip comes above bootstrap nav items */
+    z-index: 102; /* Make sure the tooltip comes above bootstrap nav items */
     margin-left: -100px;
     margin-top: -50px;
 }
@@ -169,7 +169,7 @@ div.IO.glHover {
     background-color: transparent;
 }
 .TOP.workspaceOverlay {
-    z-index: 19;
+    z-index: 101;
     background-color: rgba(0,0,0,0.5);
     width: 50%;
     height: 100%;
@@ -208,7 +208,7 @@ div.IO.glHover {
 
 /* Roaming component searchbar / typeahead */
 .mobileComponentSearchInput {
-    z-index: 20;
+    z-index: 102;
     position: absolute;
     display: block;
 }
@@ -220,7 +220,7 @@ div.IO.glHover {
     height: 250px;
     width: 200;
     background-color: white;
-    z-index: 20;
+    z-index: 102;
     font-family: monospace;
     overflow-x: hidden;
     overflow-y: auto;

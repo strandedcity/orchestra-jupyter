@@ -1,16 +1,20 @@
 
-require([
+define([
         "jquery",
+        "underscore",
+        "backbone",
         'dataFlow/dataFlow_loader',
         "dataFlow/UI/workspaceView",
         "dataFlow/UI/componentView",
         "dataFlow/project",
-        "dataFlow/components/engine"
+        "dataFlow/components/engine",
     ],
     function(
         $,
+        _,
+        Backbone,
         dataFlow,
-        workspace,
+        WS,
         ComponentView,
         OrchestraProject,
         PythonEngine
@@ -33,37 +37,42 @@ require([
             }
         };
 
-        function App(){
-
+        function App(Jupyter){
+            if (Jupyter) this.setupEngine(Jupyter);
+            else {console.error("Python Engine Not Initialized. All Python Functions will Error.");}
+            _.extend(this,Backbone.Events);
             this.init();
         }
+
+
+
+
 
         App.prototype.init = function(){
             this.currentProject = null;
             _.bindAll(this,
                 "newProject",
-                "save",
-                "loadJSONProject",
                 "loadParseProject",
                 "clearWorkspace",
-                "setupDemoMode"
+                "loadJSON"
             );
 
-            workspace.createWorkspace();
+            this.workspace = new WS.Workspace();
+            this.workspace.createWorkspace();
 
             // For initial, non-persisted testing
             this.currentProject = new OrchestraProject();
 
             // New components can be created directly in the workspace, as well as from the global nav:
             var that = this;
-            workspace.on('createNewComponent',function(component){
+            this.workspace.on('createNewComponent',function(component){
                 that.newComponent.call(that,component);
             });
         };
 
         App.prototype.newComponent = function(component){
             var that=this,
-                position = component.position || workspace.getCurrentVisibleCenterPoint(),
+                position = component.position || this.workspace.getCurrentVisibleCenterPoint(),
                 cptObject = dataFlow.createComponentByName(component["functionName"],{
                     position: position
                 });
@@ -83,6 +92,9 @@ require([
         App.prototype.clearWorkspace = function(){
             console.warn('DO SOME TESTS TO MAKE SURE THAT ZOMBIES DONT REMAIN');
 
+            // Stop listening to the project to remove ref's to the project
+            this.stopListening();
+
             // We'll remove the views directly here, since we don't actually want to remmove the components from the project
             // model itself. That could cause weird behavior if a save occurred at the wrong moment, this is safer.
             if (!_.isNull(this.currentProject)) {
@@ -96,37 +108,23 @@ require([
                 Loader.clearCurrentProject();
             });
 
-            workspace.render(); // render workspace once to remove wires from view
+            this.workspace.render(); // render workspace once to remove wires from view
         };
 
-        App.prototype.save = function(){
-            var proj = this.currentProject,
-                that=this;
-            if (_.isNull(proj)) throw new Error("No current project available to save");
-
-            require(["dataFlow/projectLoader"],function(Loader){
-                Loader.saveProjectToParse(proj,that.getDisplayState());
-            });
-        };
+        // App.prototype.save = function(){
+        //     var proj = this.currentProject,
+        //         that=this;
+        //     if (_.isNull(proj)) throw new Error("No current project available to save");
+        //
+        //     require(["dataFlow/projectLoader"],function(Loader){
+        //         Loader.saveProjectToParse(proj,that.getDisplayState());
+        //     });
+        // };
 
         App.prototype.getDisplayState = function(){
             return {
-                workspace: workspace.toJSON()
+                workspace: this.workspace.toJSON()
             }
-        };
-
-        App.prototype.setupDemoMode = function(){
-            console.warn("TODO: Visual indicators for demo mode.");
-
-            // Load a list of available sample projects instead of "this user's" projects
-
-            // Show Orientation
-
-            // Show "DEMO" Flag in the corner
-
-            // Load sample project du jour
-
-            this.loadJSONProject.call(this,'example_gridOfPoints_attractorField.json?');
         };
 
         App.prototype.loadParseProject = function(projectId){
@@ -155,7 +153,7 @@ require([
             });
         };
 
-        App.prototype.loadJSONProject = function(url){
+        App.prototype.loadJSONProjectUrl = function(url){
             this.clearWorkspace();
             var that = this;
 
@@ -167,9 +165,25 @@ require([
             });
         };
 
+        App.prototype.loadJSON = function(jsonData) {
+            this.clearWorkspace();
+            var that = this;
+
+            require(["dataFlow/projectLoader"],function(Loader){
+                Loader.loadProjectFromJson(jsonData,function(proj){
+                    that.loadWorkspace(proj);
+                });
+            });
+        }
+
         App.prototype.loadWorkspace = function(proj){
             var that = this;
             this.currentProject = proj;
+
+            // Bubble up changes to the active project so we can trigger a 'project changed' event externally
+            this.listenTo(this.currentProject,'change',function(p){
+                that.trigger('change',p.toJSON());
+            });
 
             // Draw Componets, Inputs and Outputs in workspace:
             _.each(proj.get('components'),function(cpt){
@@ -195,14 +209,22 @@ require([
             });
 
             if (proj.get('contextData')) {
-                workspace.fromJSON(proj.get('contextData')["workspace"]);
+                this.workspace.fromJSON(proj.get('contextData')["workspace"]);
             }
         };
 
         App.prototype.setupEngine = function (J) {
+            console.warn("SETUP ENGINE NEEDS TO BE IMPLEMENTED NOW")
+            PythonEngine.setup(J);
+        };
 
-        }
+        App.prototype.close = function () {
+            console.warn("Orchestra.Close() not yet implemented. It needs to clean up and remove UI.");
+            this.workspace.destroy();
+            this.trigger('closed',this.currentProject.toJSON());
+            this.off();
+        };
 
-        return new App();
+        return App;
     }
 );

@@ -163,7 +163,7 @@ define([], function(){
     // TODO: THIS MUST GO !
     // I'm having trouble working out how to get Require to pass Jupyter into this file,
     // so this is a hack to see if the rest of my stuff is working. It should be fixed.
-    engineInstance.setup(window.Jupyter);
+    // engineInstance.setup(window.Jupyter);
 
     return engineInstance;
 });

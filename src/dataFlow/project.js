@@ -24,6 +24,7 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             components.push(component);
             this.listenTo(component,'removed',this.removeComponent);
             this.set('components',components);
+            this.trigger('change',this);
             return this;
         },
         createComponent: function(name,position){
@@ -42,6 +43,7 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             this.stopListening(component);
             var remainingComponents = _.without(this.get('components'),component);
             this.set('components', remainingComponents);
+            this.trigger('change',this);
         },
         destroy: function(){
             console.warn("DESTROY on project isn't really a good idea. I should just remove VIEW stuff, not DATA stuff.");
