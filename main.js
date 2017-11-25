@@ -189,7 +189,7 @@ define([
                             "### Please do not edit this cell's contents directly, as your changes may be overwritten.\n"+
                             "###\n"+
                             "### If You do not have the Orchestra VFP Extension Installed, please visit:\n"+
-                            '### https://orchestraflowprogramming.com/install-jupyter-extension/\n'
+                            '### https://OrchestraMachineLearning.com/install-jupyter-extension/\n'
                         );
                         openProjectAttachToCell(cell);
                     }
