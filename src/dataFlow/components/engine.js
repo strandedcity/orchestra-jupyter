@@ -86,12 +86,36 @@ define([], function(){
         this.executionQueue = [];
 
         var that = this;
+
+        var importStatements =
+            "import numpy as np\n"+
+            "import pandas as pd\n"+
+            "import matplotlib as mpl\n"+
+            "import matplotlib.pyplot as plt\n";
+
         this.setup = function(J) {
             that.Jupyter = J;
-            that.setupComplete = true;
-            if (that.executionQueue.length > 0) {
-                that._executeNext();
-            }
+
+            // "Setup" basically means store a reference to Jupyter, and run some basic imports that the components will need
+
+            that.execute(importStatements, {
+                success: function () {
+                    console.log("Python Engine Successfully Initialized");
+
+                    that.setupComplete = true;
+                    if (that.executionQueue.length > 0) {
+                         that._executeNext();
+                    }
+                },
+                error: function (e) {
+                    console.error("ERROR IMPORTING REQUIRED PYTHON LIBRARIES.");
+                    throw new Error(e);
+                }
+            }, {
+                force: true // to prevent the setup itself from being deferred
+            });
+
+
         };
 
         this._executeNext = function(){
@@ -103,11 +127,12 @@ define([], function(){
             // TODO: PROXY THE CALLBACKS, AND EXECUTE THE NEXT CALCULATION IN THE QUEUE
         };
 
-        this.execute = function(pythonCode, callbacks){
-            var statusSet = callbacks.statusSet, // WAITING, RUNNING, DONE, ERROR
-                success = callbacks.success,
-                error = callbacks.error,
-                setOutput = callbacks.setOutput || function(){};
+        this.execute = function(pythonCode, callbacks, options){
+            var statusSet = callbacks.statusSet || function(){}, // WAITING, RUNNING, DONE, ERROR
+                success = callbacks.success  || function(){},
+                error = callbacks.error || function(){},
+                setOutput = callbacks.setOutput || function(){},
+                force = options && options.force === true;
             // Build Jupyter-style callbacks, see above.
             // Everything we need is in the 'reply' and 'output' callbacks
             //
@@ -124,9 +149,12 @@ define([], function(){
             // output.content = {name: "stdout", text: "hello"} #(when printing "hello")
             // output.msg_type = "stream"
 
-            if (that.setupComplete) {
+            if (that.setupComplete || force === true) {
                 // execute the calculation. Might be nice to put some status in here, as some operations could run long
                 statusSet("RUNNING");
+
+                console.log("Executing Python: " + pythonCode);
+
                 Jupyter.notebook.kernel.execute(pythonCode,
                     {
                         shell : {
@@ -158,12 +186,5 @@ define([], function(){
         }
     }
 
-    var engineInstance = new PythonEngine();
-
-    // TODO: THIS MUST GO !
-    // I'm having trouble working out how to get Require to pass Jupyter into this file,
-    // so this is a hack to see if the rest of my stuff is working. It should be fixed.
-    // engineInstance.setup(window.Jupyter);
-
-    return engineInstance;
+    return new PythonEngine();
 });

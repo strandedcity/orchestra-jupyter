@@ -298,8 +298,6 @@ define([
                     });
                     var pythonCode = that.pythonTemplateFn(templateVars);
 
-                    console.log("PYTHON CODE: "+pythonCode);
-
                     PythonEngine.execute(pythonCode, {
                         statusSet: function(status){/* */},
                         success: function () { resolve(outputVariable) },
