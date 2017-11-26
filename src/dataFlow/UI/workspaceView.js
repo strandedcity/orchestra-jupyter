@@ -69,7 +69,17 @@ define([
 
         // drag and drop related
         _.extend(this,Backbone.Events);
-        _.bindAll(this,"destroy", "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject","getCurrentVisibleCenterPoint","hideChooser");
+        _.bindAll(this,
+            "destroy",
+            "drag",
+            "render",
+            "mouseUp",
+            "clearHover",
+            "setupDraggableView",
+            "startDraggingObject",
+            "getCurrentVisibleCenterPoint",
+            "hideChooser"
+        );
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -103,7 +113,7 @@ define([
         this.setupContextMenu();
         this.setupDraggableEventHandlers();
 
-        this.attachMetakeyDetectors();
+        bindMetaKeys();
     };
 
     Workspace.prototype.destroy = function () {
@@ -115,10 +125,12 @@ define([
 
     };
 
-    Workspace.prototype.attachMetakeyDetectors = _.once(function(){
-        this.KEYS_DOWN = {};
-
-        this.KEYS_DOWN[ENUMS.KEYS.SHIFT] = false;
+    var KEYS_DOWN = {};
+    function getKeysDown(){
+        return KEYS_DOWN;
+    }
+    var bindMetaKeys = _.once(function(){
+        KEYS_DOWN[ENUMS.KEYS.SHIFT] = false;
 
         var that = this;
 
@@ -128,14 +140,14 @@ define([
         window.onkeydown = function (e) {
             if (!e) e = window.event;
             if (e.keyCode === ENUMS.KEYS.SHIFT) {
-                that.KEYS_DOWN[ENUMS.KEYS.SHIFT] = true;
+                KEYS_DOWN[ENUMS.KEYS.SHIFT] = true;
             }
         };
 
         window.onkeyup = function(e){
             if (!e) e = window.event;
             if (e.keyCode === ENUMS.KEYS.SHIFT) {
-                that.KEYS_DOWN[ENUMS.KEYS.SHIFT] = false;
+                KEYS_DOWN[ENUMS.KEYS.SHIFT] = false;
             }
         };
     });
@@ -256,7 +268,7 @@ define([
 
             if (!_.isNull(this.hoverObject)) {
                 // Are there any modifiers during the drop?
-                var modifiers = this.KEYS_DOWN;
+                var modifiers = getKeysDown();
 
                 // can't assume that user is hovering an output over an input. You can drag either direction, but the connection is only made
                 // in one direction (inputs listen to outputs, outputs have no refs to inputs)

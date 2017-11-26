@@ -96,6 +96,7 @@ define([
 
         // Inputs handle drop events directly. Triggered in the workspaceView!
         this.listenTo(this.cssObject, "drop", function(droppedCSSObj,modifiers){
+            console.log(modifiers);
             // Is the user holding the shift key? If so, connect output ADDITIONALLY.
             // Otherwise, replace connections.
             if (modifiers[ENUMS.KEYS.SHIFT] === true) {

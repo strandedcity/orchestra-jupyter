@@ -24,6 +24,8 @@ define([
             return new BooleanToggleComponentView(component);
         } else if (component.componentName === "PrintComponent") {
             return new PrintComponentView(component);
+        } else if (component.componentName === "LinePlot") {
+            return new MatPlotLibComponentView(component);
         } else {
             return new ComponentView(component);
         }
@@ -89,6 +91,72 @@ define([
         that.init(component);
 
         that.listenTo(that.component.getOutput("D"),"change",that.displayVals);
+    }
+
+    // A component that visualiz
+    function MatPlotLibComponentView(component) {
+
+        /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
+         * the slider, but not the display of the slider itself. */
+
+
+        var that = this,
+            pathNodeTemplate = _.template("<div class='pathNodeTitle'>{<%= path %>}</div>"),
+            dataTemplate = _.template("<div class='dataRow'><%= text %></div>"),
+            imageContainerTemplate = _.template("<div class='dataRow'><img src='data:image/png;base64,<%= pngdata %>' /></div>");
+
+
+        _.extend(this,ComponentView.prototype,{
+            displayVals: function(){
+                // Because the outputs are promises, we need to capture their resolved values rather than printing directly
+                var textOutput = "", dataAndNodes = [];
+                that.component.getOutput("D").getTree().recurseTree(function (data, node) {
+                    dataAndNodes.push(node);
+                    _.each(data,function (d) {
+                        dataAndNodes.push(d);
+                    })
+                });
+                Promise.all(dataAndNodes).then(function (values) {
+                    _.each(values,function(val,index){
+                        if (val.constructor.name === "Node") {
+                            textOutput += pathNodeTemplate({path: val.getPath()});
+                        } else {
+                            // Should be an array of PNG-base64 encoded images
+                            _.each(val,function(pngdata){
+                                textOutput += imageContainerTemplate({pngdata: pngdata});
+                            });
+                        }
+                    });
+                    that.printArea.innerHTML = textOutput;
+                });
+            },
+
+            createComponentWithNamePosition: function(name, x, y){
+                var element = document.createElement( 'div' );
+                element.className = 'draggable PrintComponent freezeZooming';
+
+                var label = document.createElement( 'div' );
+                label.className = 'printComponentTextArea';
+                that.printArea = label;
+                element.appendChild( label );
+                element.width = "700px";
+                element.height = "320px";
+
+                var cssObject = new THREE.CSS3DObject( element );
+                cssObject.position.x = x || 0;
+                cssObject.position.y = y || 0;
+                cssObject.position.z = 0;
+
+                WS.getWorkspaceSingleton().scene.add(cssObject);
+                element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
+
+                return cssObject;
+            }
+        });
+
+        that.init(component);
+
+        that.listenTo(that.component.outputs[0],"change",that.displayVals);
     }
 
     function BooleanToggleComponentView(component){

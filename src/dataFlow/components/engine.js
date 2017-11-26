@@ -91,7 +91,8 @@ define([], function(){
             "import numpy as np\n"+
             "import pandas as pd\n"+
             "import matplotlib as mpl\n"+
-            "import matplotlib.pyplot as plt\n";
+            "import matplotlib.pyplot as plt\n"+
+            "%matplotlib inline\n";
 
         this.setup = function(J) {
             that.Jupyter = J;
@@ -161,7 +162,7 @@ define([], function(){
                             reply : function(reply){
                                 if (reply.content.status === "ok") {
                                     statusSet("DONE");
-                                    success();
+                                    success(reply.content);
                                 } else if (reply.content.status === "error") {
                                     statusSet("ERROR");
                                     error(reply.content);

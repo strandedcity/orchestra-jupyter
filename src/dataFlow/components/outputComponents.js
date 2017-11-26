@@ -82,6 +82,95 @@ define([
         "desc": "View the value of a variable"
     });
 
+
+    components.LinePlot = DataFlow.Component.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "X", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR, desc: "X-Axis Values"},
+                {required: true, shortName: "Y", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR, desc: "Y-Axis Values"},
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "P", type: DataFlow.OUTPUT_TYPES.WILD, invisible: true}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "LinePlot"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "<%= RESULT %> = plt.figure()\n"+
+                                "plt.plot(<%= IN_X %>, <%= IN_Y %>)\n"
+            });
+            this.base_init(args);
+        },
+        recalculate: function () {
+            var that=this;
+
+            var outputPromise = Promise.all(arguments).then(function(){
+                // function will be passed resolved values from arguments to recalculate
+                // recalculate is called with input values (or promises for input values) in the order in which they
+                // are defined in the component. So "Add(A,B)" will pass values for A and B to recalculate.
+                var resolvedValues = arguments[0];
+                return new Promise(function(resolve,reject){
+                    var plots = [];
+
+                    var outputVariable = that.getOutputVariableName();
+                    var templateVars = {RESULT: outputVariable};
+                    _.each(that.inputs,function(input,index){
+                        templateVars["IN_"+input.shortName] = resolvedValues[index];
+                    });
+                    var pythonCode = that.pythonTemplateFn(templateVars);
+
+                    PythonEngine.execute(pythonCode, {
+                        statusSet: function(status){/* */},
+                        error: function (errorObject) { console.log("python status ERROR: ",errorObject); reject() },
+                        success: function (response) {
+                            that.getOutput("P").trigger("change");
+                            resolve(plots); // populated by calls to 'output' below
+                        },
+                        setOutput: function (outputDisplay) {
+                            if (outputDisplay.data && outputDisplay.data["image/png"]) {
+                                // Done! But... don't resolve. We can't tell right here just now many charts there are.
+                                // The only way to know when we're "fully done" is when "success" is called (above)
+                                plots.push(outputDisplay.data["image/png"]);
+                            } else {
+                                // Doesn't mean anything? Just ... in progress?
+                                // console.log("Looks like the plot isn't ready yet.")
+                            }
+                        }
+                    })
+                });
+            });
+
+            // Build return object. For simple outputs, this is just {N: outputPromise}
+            // For complex outputs that need to be pulled out of a tuple, there's a second promise tacked on so that the
+            // variable name used in calculation (eg, "number_addition_29") can have an index attached to it
+            // (eg, "number_addition_29[1]" to reference the second value in the returned tuple in python-land
+            var retObj = {};
+            if (this.outputs.length === 1) {
+                // When one output, the output here is just the variable assigned (in python) to hold the output
+                retObj[this.outputs[0].shortName] = outputPromise
+            } else {
+                // Otherwise, we can assume python is returning a tuple, which gets assigned to the variable above.
+                // In which case, the tuple's values can each be referenced by downstream functions via their indexes
+                // This means that the outputs of a component are assumed to match (in their order) the positions of
+                // outputs from the corresponding python function
+                _.each(this.outputs,function (o,idx) {
+                    retObj[o.shortName] = outputPromise.then(function (varName) {
+                        return new Promise(function (resolve) {
+                            return resolve(varName + "[" + idx + "]")
+                        })
+                    });
+                });
+            }
+            return retObj;
+        }
+    },{
+        "label": "Line Plot",
+        "desc": "Plot two variables against each other using connecting lines"
+    });
+
     return components;
 });
 
