@@ -24,8 +24,11 @@ define([],function(){
             NUMBER: 0,
             BOOLEAN: 1,
             NUMPY_ARR: 2,
+        UNUSED2: 3, // missing indexes causes problems eg: with the "flatten" component
+        UNUSED3: 4,
             WILD: 5,
             NULL: 6,
+        UNUSED1: 7,
             ARRAY: 8,
         },
         KEYS: {

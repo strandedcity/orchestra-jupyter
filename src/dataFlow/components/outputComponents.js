@@ -86,8 +86,8 @@ define([
     components.LinePlot = DataFlow.Component.extend({
         initialize: function(opts){
             var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "X", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR, desc: "X-Axis Values"},
-                {required: true, shortName: "Y", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR, desc: "Y-Axis Values"},
+                {required: true, shortName: "X", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR, desc: "X-Axis Values", interpretAs:DataFlow.INTERPRET_AS.LIST },
+                {required: true, shortName: "Y", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR, desc: "Y-Axis Values", interpretAs:DataFlow.INTERPRET_AS.LIST }
             ], opts, "inputs");
 
             var output = this.createIObjectsFromJSON([
@@ -100,18 +100,44 @@ define([
                 inputs: inputs,
                 outputs: output,
                 pythonTemplate: "<%= RESULT %> = plt.figure()\n"+
-                                "plt.plot(<%= IN_X %>, <%= IN_Y %>)\n"
+                                "<% _.each(IN_X , function(x,index) { %>"+
+                                "plt.plot(<%= x %>, <%= IN_Y[index] %>)\n"+
+                                "<% }) %>"
             });
             this.base_init(args);
         },
         recalculate: function () {
             var that=this;
 
-            var outputPromise = Promise.all(arguments).then(function(){
+            var outputPromise = Promise.all(arguments).then(function(vals){
+                // "List" parameters will resolve as arrays of promises. Those promises still need to be resolved to values
+                // before they can be used in calculations...
+                var xp = Promise.all(vals[0]);
+                var yp = Promise.all(vals[1]);
+
+                return new Promise(function (resolve,reject) {
+                    var X;
+                    xp.then(function (xvals) {
+                        X = xvals;
+                        return yp;
+                    }).then(function (yvals) {
+                        // LENGTHEN X IF Y IS LONGER
+                        // Pass in one x, but multiple y's? Probably, that's because you intended to use one x axis, and graph several series
+                        // When in list mode, we need a little help to repeat X enough times to cover all the y-series
+                        while (X.length < yvals.length) {
+                            // Fill X to be the same length as Y using its last member repeatedly
+                            X.push(X[X.length-1]);
+                        }
+
+                        resolve({x: X,y:yvals})
+                    })
+                });
+            }).then(function(all){
                 // function will be passed resolved values from arguments to recalculate
                 // recalculate is called with input values (or promises for input values) in the order in which they
                 // are defined in the component. So "Add(A,B)" will pass values for A and B to recalculate.
-                var resolvedValues = arguments[0];
+                var resolvedValues = [all.x,all.y];
+
                 return new Promise(function(resolve,reject){
                     var plots = [];
 
