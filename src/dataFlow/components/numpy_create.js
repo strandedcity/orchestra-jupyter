@@ -76,7 +76,7 @@ define([
             ], opts, "output");
 
             var args = _.extend({
-                componentPrettyName: "Arange"
+                componentPrettyName: "Range"
             }, opts || {},{
                 inputs: inputs,
                 outputs: output,
@@ -86,7 +86,7 @@ define([
             this.base_init(args);
         }
     },{
-        "label": "arange",
+        "label": "Range",
         "desc": "Create a 1D NumPy Range Array"
     });
 
