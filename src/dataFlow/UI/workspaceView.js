@@ -7,13 +7,14 @@
 // See http://learningthreejs.com/blog/2013/04/30/closing-the-gap-between-html-and-webgl/
 define([
     "jquery",
-    "dataFlow/UI/contextMenu",
+    "dataFlow/UI/contextMenuJupyter", // the context menu from orchestra3d is pretty CAD specific. Leaving it there in case I want to prioritize re-separation of the projects
     "dataFlow/enums",
     "threejs",
     "CSS3DRenderer",
     "OrbitControls",
     "underscore",
-    "backbone"
+    "backbone",
+    "bootstrap3"
 ],function($,ContextMenu,ENUMS){
 
     // Helpers for drag-and-drop scopes
@@ -78,7 +79,8 @@ define([
             "setupDraggableView",
             "startDraggingObject",
             "getCurrentVisibleCenterPoint",
-            "hideChooser"
+            "hideChooser",
+            "setupHelpTooltips"
         );
         this.dragObject = null;
         this.dragOffset = [0,0];
@@ -89,6 +91,8 @@ define([
         /* THIS IS IMPORTANT! Large "far" value keeps connection curves from disappearing when you zoom way out on the workspace. */
         this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 1, 1000000 );
         this.camera.position.z = 1200;
+
+        this.dragging = false; // used to suppress popovers and such during drag events
 
         //this.createWorkspace(); // Done on the application level to avoid rendering the workspace during tests
     };
@@ -111,6 +115,7 @@ define([
         this.attachControls();
 
         this.setupContextMenu();
+        this.setupHelpTooltips();
         this.setupDraggableEventHandlers();
 
         bindMetaKeys();
@@ -255,6 +260,9 @@ define([
 
     /* Drag and drop */
     Workspace.prototype.mouseUp = function(event){
+        var that = this;
+        _.delay(function(){that.dragging = false;},250);
+
         if (!_.isNull(this.dragObject)) {
             // io's, return home
             var home = this.glDragObject.getHomePosition();
@@ -338,6 +346,97 @@ define([
         });
     };
 
+
+
+    // There's a somewhat odd strategy in motion here...
+    // To make it so there's never more than one popover onscreen at a time, and because the WebGL and CSS3D Transforms
+    // make it hard for bootstrap to correctly detect the position of DOM elements handed to it,
+    // the strategy is to create an anchor element the same size and shape as the IO element (*including its applied
+    // css transforms!*, and add the popover to that instead. This produces a little popover state management
+    var $currentAnchor = null;
+    function clearPopover(){
+        // Always make sure there's only one at a time
+        if ($currentAnchor) {
+            console.log('clearing popover...');
+            if ($currentAnchor.popover) $currentAnchor.popover('destroy');
+            $currentAnchor.remove();
+            $currentAnchor = null;
+        }
+    }
+    var clearPopoversOnZoom = _.once(function(){
+        document.addEventListener( 'mousewheel', clearPopover, false );
+        // this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+    });
+    clearPopoversOnZoom();
+
+    Workspace.prototype.setupHelpTooltips = function () {
+        var that=this;
+        $('div.TOP').on("mouseenter","div.draggable",function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            // The "view" object associated with the thing that was clicked for context menu:
+            var viewObject = $(e.currentTarget).data('viewObject'),
+                x = e.clientX,
+                y = e.clientY;
+
+            var constructorName = viewObject.constructor.name;
+            if (constructorName && (constructorName == "OutputView" || constructorName == "InputView") && that.dragging === false) {
+
+                // Start fresh
+                clearPopover();
+
+                var cancel = setTimeout(function(){
+                    // See Tooltips for understanding
+                    var IOPosition = viewObject.cssObject.element.getBoundingClientRect();
+                    var anchorTemplate = _.template("<div class='locationAnchor' style='position: absolute;z-index:0; opacity: 0; width: <%= width %>px; height: <%= height %>px;top: <%= top %>px; left: <%= left %>px;'></div>")
+                    $currentAnchor = $(anchorTemplate(IOPosition));
+                    $('body').append($currentAnchor);
+
+                    // Figure out hide/show conditions....
+                    var m = viewObject.model;
+                    $currentAnchor.popover({
+                        title: function() {console.log('getting title',m.get('shortName')); return m.get('shortName') + ": "+ m.get('desc')},
+                        html: true,
+                        content: function(){return "<i>"+(m.get('required') ? "Required" : "Not required (default " + m.get('default') + ")") +"</i>"+"<br />Interpreted as: " + m.get('interpretAs')} ,
+                        trigger:'manual',
+                        container: 'body',
+                        placement: 'auto ' + (constructorName == "OutputView" ? "right" : "left")
+                    }).popover('show');
+
+                    $(e.currentTarget).on('mouseleave',function(){
+                        clearPopover();
+                    });
+                },750);
+
+                $(e.currentTarget).on('mouseleave',function(){
+                    clearTimeout(cancel);
+                });
+            }
+        })
+    };
+
+    function toScreenPosition(obj, camera, renderer)
+    {
+        var vector = new THREE.Vector3();
+
+        var widthHalf = 0.5*renderer.context.canvas.width;
+        var heightHalf = 0.5*renderer.context.canvas.height;
+
+        obj.updateMatrixWorld();
+        vector.setFromMatrixPosition(obj.matrixWorld);
+        vector.project(camera);
+
+        vector.x = ( vector.x * widthHalf ) + widthHalf;
+        vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+        return {
+            x: parseInt(vector.x),
+            y: parseInt(vector.y)
+        };
+
+    };
+
     Workspace.prototype.setupDraggableEventHandlers = function(){
 
         var that = this,
@@ -355,6 +454,10 @@ define([
             clicks = 0;
 
         function onMouseDown(e){
+            // Popovers get in the way immediately. Nix 'em
+            clearPopover();
+            that.dragging = true;
+
             if ( e.button !== 0 ) return; // left mouse button only
             if ( that.controls.enabled === false ) return; // ignore events if the workspace is disabled
 
@@ -391,6 +494,9 @@ define([
             }
         }
         function onMouseUp(e){
+            var that = this;
+            _.delay(function(){that.dragging = false;},250);
+
             if (!_.isNull(holdStarter)){
                 clearTimeout(holdStarter);
                 holdStarter = null;

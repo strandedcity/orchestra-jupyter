@@ -19,7 +19,7 @@ require.config({
         'jquery': {
             exports: '$'
         },
-        'bootstrap': {
+        'bootstrap3': {
             deps: ['jquery']
         },
         'bootstrap-slider': {
@@ -59,7 +59,7 @@ require.config({
         "parse-lib": 'lib/parse-1.5.0.min',
         parse: 'src/dataFlow/parseInitializer',
         underscore: 'lib/underscore-min',
-        bootstrap: 'lib/bootstrap.min',
+        bootstrap3: 'lib/bootstrap.min',
         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
         'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
 
