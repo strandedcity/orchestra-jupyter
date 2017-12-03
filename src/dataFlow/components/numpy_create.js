@@ -33,6 +33,57 @@ define([
         "desc": "Create a NumPy Zeros Array, up to 3 dimensions"
     });
 
+    components.NumpyFullNDimensions = DataFlow.Component.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Dimensions of numpy array"},
+                {required: false, default: 0, shortName: "V", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Value to fill the array with"}
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "A", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "Full N-D Array"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "<%= RESULT %> = np.full((<%= IN_D %>), <%= IN_V %>)\n"
+            });
+
+            this.base_init(args);
+        }
+    },{
+        "label": "Full N-Dimensional Array",
+        "desc": "Create a full Numpy array of unlimited dimensions"
+    });
+
+    components.NumpyFullRandom = DataFlow.Component.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Shape of Numpy Array"}
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "A", type: DataFlow.OUTPUT_TYPES.NUMPY_ARR}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "Random Array"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "<%= RESULT %> = np.random.rand(<%= IN_D %>)\n"
+            });
+
+            this.base_init(args);
+        }
+    },{
+        "label": "Create a Numpy Array Full of Random Values",
+        "desc": "Create a new Numpy Array (of shape specified) full of random values"
+    });
+
 
     components.NumpyFull = DataFlow.Component.extend({
         initialize: function(opts){

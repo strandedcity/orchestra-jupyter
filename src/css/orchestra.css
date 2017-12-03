@@ -257,6 +257,14 @@ div.IO.glHover {
     z-index: 102;
     position: absolute;
     display: block;
+    width: 310px;
+    line-height: 30px;
+    padding: 4px 19px;
+    border-radius: 10px;
+    outline: none;
+    border: 1px solid #CCC;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 /* TableView - text entry for number & boolean components */
