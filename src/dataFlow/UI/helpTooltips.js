@@ -101,10 +101,8 @@ define([
 
         // The "view" object associated with the thing that was clicked for context menu:
         var viewObject = $(e.currentTarget).data('viewObject'),
-            x = e.clientX,
-            y = e.clientY;
+            constructorName = viewObject.constructor.name;
 
-        var constructorName = viewObject.constructor.name;
         if (constructorName && (constructorName == "OutputView" || constructorName == "InputView") && that.mouseDown === 0) {
 
             // Start fresh
@@ -114,22 +112,21 @@ define([
                 // Cancel for clicks
                 if (that.mouseDown !== 0) {return;}
 
-                // See Tooltips for understanding
-                var IOPosition = viewObject.cssObject.element.getBoundingClientRect();
-                var anchorTemplate = _.template("<div class='locationAnchor' style='position: absolute;z-index:0; opacity: 0; width: <%= width %>px; height: <%= height %>px;top: <%= top %>px; left: <%= left %>px;'></div>")
+                var IOPosition = viewObject.cssObject.element.getBoundingClientRect(),
+                    anchorTemplate = _.template("<div class='locationAnchor' style='position: absolute;z-index:0; opacity: 0; width: <%= width %>px; height: <%= height %>px;top: <%= top %>px; left: <%= left %>px;'></div>");
                 $currentAnchor = $(anchorTemplate(IOPosition));
                 $('body').append($currentAnchor);
 
-                var m = viewObject.model;
-                var jsonRep = m.toJSON();
-                var isOutputView = constructorName == "OutputView";
+                var m = viewObject.model,
+                    jsonRep = m.toJSON(),
+                    isOutputView = constructorName == "OutputView";
 
                 jsonRep.defaultValue = ( _.isUndefined(jsonRep.default) || _.isNull(jsonRep.default) ) ? "(none)" : jsonRep.default;
                 jsonRep.desc = _.isUndefined(jsonRep.desc) ? "" : jsonRep.desc;
                 jsonRep.interpretAs = ENUMS.DISPLAY_NAMES.INTERPRET_AS[jsonRep.interpretAs] || "Item";
                 jsonRep.required = _.isUndefined(jsonRep.required) ? true : jsonRep.required;
                 jsonRep.type = ENUMS.DISPLAY_NAMES.OUTPUT_TYPES[jsonRep.type];
-console.log(jsonRep)
+
                 // Figure out hide/show conditions....
                 $currentAnchor.popover({
                     title: _titleContentTemplate(jsonRep),
