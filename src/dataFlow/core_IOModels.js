@@ -30,6 +30,7 @@ define([
             this.containsNewData = _.isUndefined(args.containsNewData) ? true : false; // by default, this component will .destroy() its contents when its values are cleared
             this.shortName = args.shortName;
             this.values = new DataTree([]);
+            this.desc = args.desc;
             if (!_.isUndefined(args.invisible)) this.set({"invisible": args.invisible});
 
             var parameterType = ENUMS.INTERPRET_AS.ITEM;
@@ -141,6 +142,9 @@ define([
         toJSON: function(){
             var obj = {
                 shortName: this.shortName,
+                desc: this.desc,
+                default: this.default,
+                required: this.required,
                 id: this.id || this.cid,
                 connections: _.map(this._listeningTo,function(output){
                     return output.id || output.cid;

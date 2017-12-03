@@ -33,6 +33,24 @@ define([],function(){
         },
         KEYS: {
             SHIFT: 16
+        },
+        DISPLAY_NAMES: {
+            INTERPRET_AS: {
+                0: "Item",
+                1: "List",
+                2: "Tree"
+            },
+            OUTPUT_TYPES: {
+                0: "Number",
+                1: "Boolean",
+                2: "Numpy Array",
+                3: "String",
+                4: "Pandas Dataframe",
+                5: "(Any Data Type)",
+                6: "Null",
+                7: "Unused",
+                8: "List / Array"
+            }
         }
     };
 });

@@ -121,7 +121,7 @@ div.componentLabel.previewOff.sufficient {background-color:#999999;}
 div.componentLabel.previewOff.error {background-color:orangered}
 
 div.IO {
-    box-sizing: border-box;
+    box-sizing: content-box;
     position: absolute;
     display: block;
     background-color: #ff870c;
@@ -144,7 +144,7 @@ div.IO {
     user-select: none;
 }
 div.IO:hover {
-    box-sizing: border-box;
+    box-sizing: content-box;
     border: 5px solid orange;
     cursor: pointer;
 }
@@ -158,6 +158,52 @@ div.IO.glHover {
 .dragging {
     pointer-events: none;
 }
+
+/* Help Tooltip / Popovers */
+.io_tooltip {
+    margin: -9px -14px;
+    list-style: none;
+    padding-left: 0;
+}
+.io_tooltip .io_description {
+    font-style: italic;
+    margin: 9px;
+    display: inline-block;
+    font-size: 17px;
+    font-weight: bold;
+}
+.io_tooltip .io_isRequired {
+    width: 80px;
+    display: inline-block;
+    margin: 0px 9px;
+    color: #999;
+    font-size: 11px;
+    vertical-align: middle;
+}
+.io_tooltip li {
+    max-width: 180px;
+    display: block;
+}
+.io_tooltip_field_title {
+    width: 80px;
+    line-height: 16px;
+    display: inline-block;
+    margin: 9px;
+    color: #999;
+    font-size: 11px;
+    vertical-align: middle;
+}
+.io_tooltip_field_value {
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+    width: 60px;
+    text-align: left;
+    line-height: 16px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 
 /* Slider custom overrides. Can be copied to slider's CSS eventually */
 .slider {

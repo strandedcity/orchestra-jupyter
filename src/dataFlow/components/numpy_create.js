@@ -93,9 +93,9 @@ define([
     components.NumpyLinspace = DataFlow.Component.extend({
         initialize: function(opts){
             var inputs = this.createIObjectsFromJSON([
-                {required: false, default: 0, shortName: "S", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Start"},
-                {required: false, default: 10, shortName: "E", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "End"},
-                {required: false, default: 1, shortName: "C", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Count"}
+                {required: false, default: 0, shortName: "S", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Start, the array's first value"},
+                {required: false, default: 10, shortName: "E", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "End, the array's last value"},
+                {required: false, default: 1, shortName: "C", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Count, number of items in the array"}
             ], opts, "inputs");
 
             var output = this.createIObjectsFromJSON([

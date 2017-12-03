@@ -76,6 +76,24 @@ define([
         this.mouseDown = this.mouseDown - 1;
     };
 
+    var _bodyContentTemplate = _.template(
+        "<ul class='io_tooltip'>" +
+        "<% if (desc != '') { %><li><span class='io_description'><%= desc %><% if (required) { %>*<% } %></span></li><% } %>" +
+        "<li><span class='io_isRequired'><% if (required) { %>*<% } %>(<% if (!required) { %>Not <% } %>Required)</span></li>" +
+        "<% if (defaultValue != '(none)') { %><li><span class='io_tooltip_field_title'>Default Value: </span> <span class='io_tooltip_field_value'><%= defaultValue %></span></li><% } %>" +
+        "<li><span class='io_tooltip_field_title'>Interpreted as: </span><span class='io_tooltip_field_value'><%= interpretAs %></span></li>" +
+        "</ul>"
+    );
+
+    var _bodyContentTemplateOutput = _.template(
+        "<ul class='io_tooltip'>" +
+        "<% if (desc == '') { %><li><span class='io_tooltip_field_title'>(no description)</span></li><% } else { %>" +
+        "<li><span class='io_description'><%= desc %></span></li><% } %>" +
+        "</ul>"
+    );
+
+    var _titleContentTemplate = _.template("<%= shortName %>: <%= type %>")
+
     HelpTooltips.prototype.mouseEnter = function(e){
         var that = this;
         e.stopPropagation();
@@ -93,27 +111,39 @@ define([
             clearPopover();
 
             var cancel = setTimeout(function(){
+                // Cancel for clicks
+                if (that.mouseDown !== 0) {return;}
+
                 // See Tooltips for understanding
                 var IOPosition = viewObject.cssObject.element.getBoundingClientRect();
                 var anchorTemplate = _.template("<div class='locationAnchor' style='position: absolute;z-index:0; opacity: 0; width: <%= width %>px; height: <%= height %>px;top: <%= top %>px; left: <%= left %>px;'></div>")
                 $currentAnchor = $(anchorTemplate(IOPosition));
                 $('body').append($currentAnchor);
 
-                // Figure out hide/show conditions....
                 var m = viewObject.model;
+                var jsonRep = m.toJSON();
+                var isOutputView = constructorName == "OutputView";
+
+                jsonRep.defaultValue = ( _.isUndefined(jsonRep.default) || _.isNull(jsonRep.default) ) ? "(none)" : jsonRep.default;
+                jsonRep.desc = _.isUndefined(jsonRep.desc) ? "" : jsonRep.desc;
+                jsonRep.interpretAs = ENUMS.DISPLAY_NAMES.INTERPRET_AS[jsonRep.interpretAs] || "Item";
+                jsonRep.required = _.isUndefined(jsonRep.required) ? true : jsonRep.required;
+                jsonRep.type = ENUMS.DISPLAY_NAMES.OUTPUT_TYPES[jsonRep.type];
+console.log(jsonRep)
+                // Figure out hide/show conditions....
                 $currentAnchor.popover({
-                    title: function() {console.log('getting title',m.get('shortName')); return m.get('shortName') + ": "+ m.get('desc')},
+                    title: _titleContentTemplate(jsonRep),
                     html: true,
-                    content: function(){return "<i>"+(m.get('required') ? "Required" : "Not required (default " + m.get('default') + ")") +"</i>"+"<br />Interpreted as: " + m.get('interpretAs')} ,
+                    content: isOutputView ? _bodyContentTemplateOutput(jsonRep) : _bodyContentTemplate(jsonRep),
                     trigger:'manual',
                     container: 'body',
-                    placement: 'auto ' + (constructorName == "OutputView" ? "right" : "left")
+                    placement: 'auto ' + (isOutputView ? "right" : "left")
                 }).popover('show');
 
-                $(e.currentTarget).on('mouseleave',clearPopover);
+                $(e.currentTarget).one('mouseleave',clearPopover);
             },750);
 
-            $(e.currentTarget).on('mouseleave',function(){
+            $(e.currentTarget).one('mouseleave',function(){
                 clearTimeout(cancel);
             });
         }
