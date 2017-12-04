@@ -52,6 +52,8 @@ define([
                         }
                     })
                 });
+            }).catch(function (e) {
+                console.warn("Some inputs resolved as errors. This behavior should be defined... it can either 'show what we have' or error out, in which case prior data should be cleared.")
             });
 
             // Build return object. For simple outputs, this is just {N: outputPromise}
@@ -167,6 +169,9 @@ define([
                         }
                     })
                 });
+            })
+            .catch(function (e) {
+                console.warn("Some inputs resolved as errors. This behavior should be defined... it can either 'show what we have' or error out, in which case prior data should be cleared.")
             });
 
             // Build return object. For simple outputs, this is just {N: outputPromise}

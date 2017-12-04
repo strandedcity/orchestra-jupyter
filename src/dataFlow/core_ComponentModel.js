@@ -227,6 +227,8 @@ define([
             ////////// RECALCULATION PHASE
             //
             this.set({'sufficient': !isNullNow});
+            this.errors = []; // clear out any prior errors. This is just a prop, because ... no need to persist it
+
             if (!isNullNow) {
                 // For testing, this must remain. There are problems spying on the 'subclassed' recalculate functions
                 this.simulatedRecalculate();
@@ -301,7 +303,7 @@ define([
                     PythonEngine.execute(pythonCode, {
                         statusSet: function(status){/* */},
                         success: function () { resolve(outputVariable) },
-                        error: function (errorObject) { console.log("python status ERROR: ",errorObject); reject() },
+                        error: function (errorObject) { reject(errorObject) },
                         setOutput: function (outputDisplay) { /* */ }
                     })
                 });
@@ -328,6 +330,17 @@ define([
                     });
                 });
             }
+
+            outputPromise.catch(function (e) {
+                // No need to persist or model these in any 'reactive' way... just make 'em simple props
+                that.errors.push({
+                    type: e.ename,
+                    message: e.evalue
+                });
+
+                that.set({'sufficient': "error"});
+            });
+
             return retObj;
         },
         simulatedRecalculate: function(){

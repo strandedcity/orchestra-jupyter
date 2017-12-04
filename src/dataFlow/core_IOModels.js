@@ -145,6 +145,7 @@ define([
                 desc: this.desc,
                 default: this.default,
                 required: this.required,
+                interpretAs: this.interpretAs,
                 id: this.id || this.cid,
                 connections: _.map(this._listeningTo,function(output){
                     return output.id || output.cid;

@@ -203,6 +203,61 @@ div.IO.glHover {
     vertical-align: middle;
     display: inline-block;
 }
+.cmpt_tooltip_title_modulename {
+    font-weight: normal;
+    color: #999;
+    font-size: 10px;
+}
+.cmpt_error_line {
+    color: red;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    width: 600px;
+    font-size: 12px;
+}
+.cmpt_error_line .err_type {
+    width: 75px;
+    text-align: left;
+    font-weight: bold;
+}
+.cmpt_error_line .err_msg {
+    text-align: left;
+    width: 525px;
+}
+.cmpt_tooltip .cmpt_description {
+    font-weight: normal;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+.cmpt_tooltip .cmpt_io_container {
+
+}
+.cmpt_tooltip .cmpt_io_container .cmpt_io_title{
+    font-weight: bold;
+    color: #333;
+    margin-left: 50px;
+}
+.cmpt_tooltip .cmpt_io_container .cmpt_io{
+    margin-left: 70px;
+    display: block;
+}
+.cmpt_tooltip .cmpt_io_container .cmpt_io .cmpt_io_name {
+    font-weight: bold;
+    font-size: 12px;
+    vertical-align: top;
+}
+.cmpt_tooltip .cmpt_io_container .cmpt_io .cmpt_io_details {
+    color: #666;
+    font-size: 12px;
+    max-width: 250px;
+    display: inline-block;
+    margin-left: 8px;
+}
+.cmpt_tooltip  .cmpt_io_required_legend {
+    font-size: 11px;
+    color: #999;
+}
+
+
 
 
 /* Slider custom overrides. Can be copied to slider's CSS eventually */

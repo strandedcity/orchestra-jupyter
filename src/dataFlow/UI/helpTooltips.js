@@ -21,6 +21,7 @@ define([
         // Always make sure there's only one at a time
         if ($currentAnchor) {
             if ($currentAnchor.popover) $currentAnchor.popover('destroy');
+            $currentAnchor.off("show.bs.popover");
             $currentAnchor.remove();
             $currentAnchor = null;
         }
@@ -94,7 +95,75 @@ define([
 
     var _titleContentTemplate = _.template("<%= shortName %>: <%= type %>")
 
+    var _componentTitle = _.template("<%= componentPrettyName %> <span class='cmpt_tooltip_title_modulename'>(<%= module %>.<%= componentName %>)</span>");
+
+    var _componentBodyErrorState = _.template(
+        "<% _.each(errors,function(e,idx){ %> "+
+        "       <div class='cmpt_error_line'>"+
+        "           <span class='err_type'><%= e.type %>:</span>"+
+        "           <span class='err_msg'><%= e.message %></span>"+
+        "       <div> "+
+        "<% }) %>"
+    );
+
+    var _componentBody = _.template(
+        "<div class='cmpt_tooltip'>"+
+        "   <div class='cmpt_description'><%= description %></div> "+
+        "       <div class='cmpt_io_container'>"+
+        "           <span class='cmpt_io_title'>Inputs:</span>"+
+
+        "<% _.each(inputs,function(i){ %> "+
+        "       <div class='cmpt_io'>"+
+        "           <span class='cmpt_io_name'><%= i.shortName %><% if (i.required) { %>*<% } %></span>"+
+        "           <span class='cmpt_io_details'>(<%= i.type %>, as <%= i.interpretAs %>) <%= i.desc %></span>"+
+        "       </div> "+
+        "<% }) %>"+
+
+        "           <span class='cmpt_io_title'>Outputs:</span>"+
+
+        "<% _.each(outputs,function(i){ %> "+
+        "       <div class='cmpt_io'>"+
+        "           <span class='cmpt_io_name'><% if (i.required) { %>*<% } %><%= i.shortName %></span>"+
+        "           <span class='cmpt_io_details'>(<%= i.type %>, as <%= i.interpretAs %>) <%= i.desc %></span>"+
+        "       </div> "+
+        "<% }) %>"+
+
+        "           <span class='cmpt_io_required_legend'>* = required</span>"+
+        "       </div> "+
+        "</div>"
+    );
+
+    function representIO(m){
+        var jsonRep = m.toJSON();
+        jsonRep.defaultValue = ( _.isUndefined(jsonRep.default) || _.isNull(jsonRep.default) ) ? "(none)" : jsonRep.default;
+        jsonRep.desc = _.isUndefined(jsonRep.desc) ? "" : jsonRep.desc;
+        jsonRep.interpretAs = ENUMS.DISPLAY_NAMES.INTERPRET_AS[jsonRep.interpretAs] || "Item";
+        jsonRep.required = _.isUndefined(jsonRep.required) ? true : jsonRep.required;
+        jsonRep.type = ENUMS.DISPLAY_NAMES.OUTPUT_TYPES[m.get('type')];
+        return jsonRep;
+    }
+
+    function representComponent(m){
+        var jsonRep = m.toJSON();
+        jsonRep.errors = m.errors; // deliberately not an attribute, b/c no need to listen or persist
+        jsonRep.description = m.constructor.desc;
+        jsonRep.label = m.constructor.label;
+        jsonRep.module = m.constructor.module;
+        jsonRep.inputs = _.map(m.inputs,function (i) {
+            return representIO(i);
+        });
+        jsonRep.outputs = _.map(m.outputs,function (o) {
+            return representIO(o);
+        });
+        console.log(jsonRep);
+        return jsonRep;
+    }
+
+
     HelpTooltips.prototype.mouseEnter = function(e){
+        // Bail during click or drag events
+        if (this.mouseDown !== 0) return;
+
         var that = this;
         e.stopPropagation();
         e.preventDefault();
@@ -103,29 +172,34 @@ define([
         var viewObject = $(e.currentTarget).data('viewObject'),
             constructorName = viewObject.constructor.name;
 
-        if (constructorName && (constructorName == "OutputView" || constructorName == "InputView") && that.mouseDown === 0) {
+        // Start fresh
+        clearPopover();
 
-            // Start fresh
-            clearPopover();
+        var hoverObject = $(viewObject.cssObject.element);
+        if (hoverObject.find('.componentLabel').size() > 0) {
+            // "component" cssObject is for the whole component, which includes the IOs. I only want the label.
+            hoverObject = hoverObject.find('.componentLabel').get(0);
+        } else {
+            // IO's are just the IO's
+            hoverObject = hoverObject.get(0);
+        }
+
+        var hoverObjectPosition = hoverObject.getBoundingClientRect(),
+            anchorTemplate = _.template("<div class='locationAnchor' style='position: absolute;z-index:0; opacity: 0; width: <%= width %>px; height: <%= height %>px;top: <%= top %>px; left: <%= left %>px;'></div>");
+        $currentAnchor = $(anchorTemplate(hoverObjectPosition));
+        $('body').append($currentAnchor);
+
+
+        if (constructorName && (constructorName == "OutputView" || constructorName == "InputView")) {
+
+            /////////////////////////////////////////
+            //  HELP TOOLTIPS FOR INPUTS AND OUTPUTS
+            /////////////////////////////////////////
 
             var cancel = setTimeout(function(){
-                // Cancel for clicks
-                if (that.mouseDown !== 0) {return;}
 
-                var IOPosition = viewObject.cssObject.element.getBoundingClientRect(),
-                    anchorTemplate = _.template("<div class='locationAnchor' style='position: absolute;z-index:0; opacity: 0; width: <%= width %>px; height: <%= height %>px;top: <%= top %>px; left: <%= left %>px;'></div>");
-                $currentAnchor = $(anchorTemplate(IOPosition));
-                $('body').append($currentAnchor);
-
-                var m = viewObject.model,
-                    jsonRep = m.toJSON(),
+                var jsonRep = representIO(viewObject.model),
                     isOutputView = constructorName == "OutputView";
-
-                jsonRep.defaultValue = ( _.isUndefined(jsonRep.default) || _.isNull(jsonRep.default) ) ? "(none)" : jsonRep.default;
-                jsonRep.desc = _.isUndefined(jsonRep.desc) ? "" : jsonRep.desc;
-                jsonRep.interpretAs = ENUMS.DISPLAY_NAMES.INTERPRET_AS[jsonRep.interpretAs] || "Item";
-                jsonRep.required = _.isUndefined(jsonRep.required) ? true : jsonRep.required;
-                jsonRep.type = ENUMS.DISPLAY_NAMES.OUTPUT_TYPES[jsonRep.type];
 
                 // Figure out hide/show conditions....
                 $currentAnchor.popover({
@@ -138,7 +212,41 @@ define([
                 }).popover('show');
 
                 $(e.currentTarget).one('mouseleave',clearPopover);
-            },750);
+            },300);
+
+            $(e.currentTarget).one('mouseleave',function(){
+                clearTimeout(cancel);
+            });
+        } else if (constructorName && constructorName.indexOf("ComponentView") > -1) { // Tooltip can be used for "PrintComponentView" and others
+
+            ////////////////////////////////
+            //  HELP TOOLTIPS FOR COMPONENTS
+            ////////////////////////////////
+
+            var cancel = setTimeout(function(){
+
+                var jsonRep = representComponent(viewObject.component),
+                    errorState = viewObject.component.get('sufficient') === "error";
+
+console.log(jsonRep)
+
+                $currentAnchor.on("show.bs.popover", function(){
+                    $(this).data("bs.popover").tip().css("max-width", "600px");
+                });
+
+                // Figure out hide/show conditions....
+                $currentAnchor.popover({
+                    title: _componentTitle(jsonRep),
+                    html: true,
+                    content: errorState ? _componentBodyErrorState(jsonRep) : _componentBody(jsonRep),
+                    trigger:'manual',
+                    container: 'body',
+                    placement: 'auto top' // prefer the top, but go where you have to
+                }).popover('show');
+
+
+                $(e.currentTarget).one('mouseleave',clearPopover);
+            },300);
 
             $(e.currentTarget).one('mouseleave',function(){
                 clearTimeout(cancel);
