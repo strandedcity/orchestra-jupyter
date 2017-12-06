@@ -155,7 +155,7 @@ define([
         jsonRep.outputs = _.map(m.outputs,function (o) {
             return representIO(o);
         });
-        console.log(jsonRep);
+        
         return jsonRep;
     }
 
@@ -227,8 +227,6 @@ define([
 
                 var jsonRep = representComponent(viewObject.component),
                     errorState = viewObject.component.get('sufficient') === "error";
-
-console.log(jsonRep)
 
                 $currentAnchor.on("show.bs.popover", function(){
                     $(this).data("bs.popover").tip().css("max-width", "600px");
