@@ -123,7 +123,7 @@ define([
 
         "<% _.each(outputs,function(i){ %> "+
         "       <div class='cmpt_io'>"+
-        "           <span class='cmpt_io_name'><% if (i.required) { %>*<% } %><%= i.shortName %></span>"+
+        "           <span class='cmpt_io_name'><%= i.shortName %><% if (i.required) { %>*<% } %></span>"+
         "           <span class='cmpt_io_details'>(<%= i.type %>, as <%= i.interpretAs %>) <%= i.desc %></span>"+
         "       </div> "+
         "<% }) %>"+
