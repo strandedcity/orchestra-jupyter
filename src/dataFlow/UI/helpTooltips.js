@@ -123,7 +123,7 @@ define([
 
         "<% _.each(outputs,function(i){ %> "+
         "       <div class='cmpt_io'>"+
-        "           <span class='cmpt_io_name'><%= i.shortName %><% if (i.required) { %>*<% } %></span>"+
+        "           <span class='cmpt_io_name'><%= i.shortName %></span>"+
         "           <span class='cmpt_io_details'>(<%= i.type %>, as <%= i.interpretAs %>) <%= i.desc %></span>"+
         "       </div> "+
         "<% }) %>"+
@@ -155,7 +155,7 @@ define([
         jsonRep.outputs = _.map(m.outputs,function (o) {
             return representIO(o);
         });
-        
+
         return jsonRep;
     }
 
@@ -192,65 +192,61 @@ define([
 
         if (constructorName && (constructorName == "OutputView" || constructorName == "InputView")) {
 
-            /////////////////////////////////////////
             //  HELP TOOLTIPS FOR INPUTS AND OUTPUTS
-            /////////////////////////////////////////
+            var jsonRep = representIO(viewObject.model),
+                isOutputView = constructorName == "OutputView";
 
-            var cancel = setTimeout(function(){
+            showPopoverWithDelay(
+                _titleContentTemplate(jsonRep),
+                isOutputView ? _bodyContentTemplateOutput(jsonRep) : _bodyContentTemplate(jsonRep),
+                isOutputView ? "right" : "left",
+                null,
+                e.currentTarget
+            );
+        } else if (constructorName && constructorName.indexOf("ComponentView") > -1) {
 
-                var jsonRep = representIO(viewObject.model),
-                    isOutputView = constructorName == "OutputView";
-
-                // Figure out hide/show conditions....
-                $currentAnchor.popover({
-                    title: _titleContentTemplate(jsonRep),
-                    html: true,
-                    content: isOutputView ? _bodyContentTemplateOutput(jsonRep) : _bodyContentTemplate(jsonRep),
-                    trigger:'manual',
-                    container: 'body',
-                    placement: 'auto ' + (isOutputView ? "right" : "left")
-                }).popover('show');
-
-                $(e.currentTarget).one('mouseleave',clearPopover);
-            },300);
-
-            $(e.currentTarget).one('mouseleave',function(){
-                clearTimeout(cancel);
-            });
-        } else if (constructorName && constructorName.indexOf("ComponentView") > -1) { // Tooltip can be used for "PrintComponentView" and others
-
-            ////////////////////////////////
             //  HELP TOOLTIPS FOR COMPONENTS
-            ////////////////////////////////
+            // Tooltip can be used for "PrintComponentView" and others
 
-            var cancel = setTimeout(function(){
+            var jsonRep = representComponent(viewObject.component),
+                errorState = viewObject.component.get('sufficient') === "error";
 
-                var jsonRep = representComponent(viewObject.component),
-                    errorState = viewObject.component.get('sufficient') === "error";
-
-                $currentAnchor.on("show.bs.popover", function(){
-                    $(this).data("bs.popover").tip().css("max-width", "600px");
-                });
-
-                // Figure out hide/show conditions....
-                $currentAnchor.popover({
-                    title: _componentTitle(jsonRep),
-                    html: true,
-                    content: errorState ? _componentBodyErrorState(jsonRep) : _componentBody(jsonRep),
-                    trigger:'manual',
-                    container: 'body',
-                    placement: 'auto top' // prefer the top, but go where you have to
-                }).popover('show');
-
-
-                $(e.currentTarget).one('mouseleave',clearPopover);
-            },300);
-
-            $(e.currentTarget).one('mouseleave',function(){
-                clearTimeout(cancel);
-            });
+            showPopoverWithDelay(
+                _componentTitle(jsonRep),
+                errorState ? _componentBodyErrorState(jsonRep) : _componentBody(jsonRep),
+                'top',
+                {"max-width":"600px"},
+                e.currentTarget
+            )
         }
     };
+
+    function showPopoverWithDelay(title,content,positionPreference,extraCss,targetElement){
+        var cancel = setTimeout(function(){
+
+            if (extraCss) {
+                $currentAnchor.on("show.bs.popover", function(){
+                    $(this).data("bs.popover").tip().css(extraCss);
+                });
+            }
+
+            $currentAnchor.popover({
+                title: title,
+                html: true,
+                content: content,
+                trigger:'manual',
+                container: 'body',
+                placement: 'auto ' + positionPreference // prefer the specified spot, but go where you have to
+            }).popover('show');
+
+
+            $(targetElement).one('mouseleave',clearPopover);
+        },300);
+
+        $(targetElement).one('mouseleave',function(){
+            clearTimeout(cancel);
+        });
+    }
 
     HelpTooltips.prototype.destroy = function(){
         clearPopover();
