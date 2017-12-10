@@ -5,13 +5,16 @@ define([
 ],function($,_,DataTree){
     var TABLE_ID = "editableTable";
 
-    function TableView(data,x,y,callback){
+    function TableView(data,x,y,callback,stringType){
         this.init.apply(this,arguments);
     }
 
-    TableView.prototype.init = function(data,x,y,callback){
+    TableView.prototype.init = function(data,x,y,callback,stringType){
         this.callback = callback;
         this.data = data;
+        this.stringType = !!stringType;
+
+        _.bindAll(this,"parseInput");
 
         this.overlay = this.createOverlay();
 
@@ -22,6 +25,13 @@ define([
     };
 
     TableView.prototype.parseInput = function(newData, item){
+        // This whole module is a mess. Obviously, this data-parser should be configurable to parse user input
+        // into the right data type for the component. And it sort of is but.... basically the code just assumes
+        // it's a number and if that fails, tries parsing as a boolean.
+        // There's an exception for strings.
+
+        if (this.stringType) {return newData;}
+
         var parsedData = item; // can't parse it? do jack.
 
         var parsingTest = Number(newData);
@@ -62,8 +72,9 @@ define([
                 $tr.find('td').data({
                     'd': dataString,
                     'f': function(newData){
+// console.log('new data: ',newData)
                         var parsedData = that.parseInput(newData,item);
-
+// console.log('parsed data: ',parsedData)
                         // replace this item of the array with spec'd data
                         data[index] = parsedData;
 
@@ -97,6 +108,7 @@ define([
             $(this).text("(add value)");
             selectElementContents(this);
         }).on('blur','.addData',function(){
+// console.log('this text: ',$(this).text())
             var parsed = that.parseInput($(this).text(),undefined);
 
             if (_.isUndefined(parsed)) $(this).text("(add value)");
@@ -169,7 +181,8 @@ define([
         var $tableContainer = $("<div class='tableView'><table id='" + TABLE_ID + "'></table></div>");
         $tableContainer.css({
             top: y,
-            left: x
+            left: x,
+            'min-width': '100px'
         });
         $('body').append($tableContainer);
 

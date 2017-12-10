@@ -60,7 +60,9 @@ define([
         this.click = function(x,y){
             console.warn("CLICK HANDLER DUPLICATES CODE IN COMPONENTVIEW. FIX!");
 
-            if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER && that.model.type !== ENUMS.OUTPUT_TYPES.BOOLEAN) return;
+            if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER &&
+                that.model.type !== ENUMS.OUTPUT_TYPES.BOOLEAN &&
+                that.model.type !== ENUMS.OUTPUT_TYPES.STRING) return;
 
             // Show the table-number-enterer UI. It cleans up after itself.
             var data = that.model.get('persistedData') || new DataTree(),
@@ -69,7 +71,7 @@ define([
                 };
             require(["dataFlow/UI/tableValueEnterer"],function(TableView){
                 // no reference necessary. The slider will clean itself up.
-                new TableView(data,x,y,callback);
+                new TableView(data,x,y,callback,that.model.type === ENUMS.OUTPUT_TYPES.STRING);
             });
         };
 
