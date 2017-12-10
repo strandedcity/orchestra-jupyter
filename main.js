@@ -62,6 +62,11 @@ require.config({
         bootstrap3: 'lib/bootstrap.min',
         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
         'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
+        Handsontable: 'lib/handsontable.min',
+        HandsontableWrapper: 'lib/handsontable.wrapper',
+        numbro: 'lib/numbro',
+        pikaday: 'lib/pikaday',
+        moment: 'lib/moment',
 
         // geometry & dataflow
         dataFlow: 'src/dataFlow',
@@ -154,6 +159,10 @@ define([
         })
     }
 
+    function precache(){
+        // Powers the excel-like value enterer
+        require(['Handsontable']);
+    }
 
 
     function load_orchestra_toolbar_button() {
@@ -165,6 +174,8 @@ define([
             help: 'Orchestra Visual Flow Programming',
             help_index : 'orchestra',
             handler : function(options){
+                // Load assets that orchestra uses, but not right away
+                precache();
 
                 // The selected cell is either already an "orchestra"'d cell, or not.
                 // If yes, open orchestra + load project from cell metadata

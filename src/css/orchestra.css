@@ -321,27 +321,3 @@ div.IO.glHover {
     font-size: 20px;
     font-weight: bold;
 }
-
-/* TableView - text entry for number & boolean components */
-.tableView {
-    display: block;
-    position: absolute;
-    height: 250px;
-    width: 200;
-    background-color: white;
-    z-index: 102;
-    font-family: monospace;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-#editableTable {width: 100%;}
-#editableTable tr {width: 100%;}
-#editableTable tr td {width: 100%;padding: 4px;}
-#editableTable .headerRow {
-    font-weight: bold;
-    text-align: right;
-    background-color: #aaaaaa;
-}
-#editableTable tbody tr:nth-child(odd) {
-    background-color: #dedede;
-}
