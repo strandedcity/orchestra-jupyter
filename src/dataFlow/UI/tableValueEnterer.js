@@ -2,11 +2,9 @@ define([
     "jquery",
     "underscore",
     "dataFlow/dataTree",
-    "HandsontableWrapper", // THIS IS REQUIRED TO BE LOADED LONG BEFORE THIS LINE UNLESS I INSTALL A CSS LOADER WITH A CALLBACK TO MAKE SURE THE STYLES ARE READY. to make sure the CSS styles load up BEFORE the first table is created. Otherwise, the table virtual scroll is completely broken -- the cells after those initially visible won't be drawn for scroll or keyboard events.
+    "HandsontableWrapper", // DO NOT LOAD WITHOUT STYLES! SEE WRAPPER.
     "dataFlow/enums"
 ],function($,_,DataTree,Handsontable,ENUMS){
-
-    var TABLE_ID = "editableTable";
 
     function TableView(data,x,y,callback,dataType){
         this.init.apply(this,arguments);

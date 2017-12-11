@@ -9,7 +9,8 @@ define([
         "dataFlow/project",
         "dataFlow/components/engine",
         "dataFlow/pulse",
-        "dataFlow/freezeCalculations"
+        "dataFlow/freezeCalculations",
+        "text!src/css/orchestra.css"
     ],
     function(
         $,
@@ -21,10 +22,12 @@ define([
         OrchestraProject,
         PythonEngine,
         Pulse,
-        Freezer
+        Freezer,
+        OrchestraStyles
     ){
         // Include general styles
-        $("head").append("<link rel='stylesheet' href='"+require.toUrl("src/css/orchestra.css")+"' type='text/css' media='screen'>");
+        //$("head").append("<link rel='stylesheet' href='"+require.toUrl("src/css/orchestra.css")+"' type='text/css' media='screen'>");
+        $("head").append("<style type='text/css'>"+OrchestraStyles+"</style");
 
         var prevTimeStamp = 0, events = [];
         window.LOG_TIME_EVENT = function(eventName, end){

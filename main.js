@@ -67,6 +67,7 @@ require.config({
         numbro: 'lib/numbro',
         pikaday: 'lib/pikaday',
         moment: 'lib/moment',
+        text: 'lib/text',
 
         // geometry & dataflow
         dataFlow: 'src/dataFlow',
@@ -79,13 +80,11 @@ define([
     './app',
     'jquery',
     'base/js/dialog',
-    'HandsontableWrapper', // THIS IS REQUIRED to make sure the CSS styles load up BEFORE the first table is created. Otherwise, the table virtual scroll is completely broken -- the cells after those initially visible won't be drawn for scroll or keyboard events.
 ], function(
     Jupyter,
     OrchestraApplication,
     $,
-    dialog,
-    Handsontable
+    dialog
 ) {
 
     // In the Jupyter context, it might be nice to expose all available variables defined thus far in the ipython notebook
@@ -163,7 +162,7 @@ define([
 
     function precache(){
         // Powers the excel-like value enterer
-        require(['Handsontable']);
+        require(['HandsontableWrapper']);
     }
 
 
