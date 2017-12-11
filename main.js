@@ -78,12 +78,14 @@ define([
     'base/js/namespace',
     './app',
     'jquery',
-    'base/js/dialog'
+    'base/js/dialog',
+    'HandsontableWrapper', // THIS IS REQUIRED to make sure the CSS styles load up BEFORE the first table is created. Otherwise, the table virtual scroll is completely broken -- the cells after those initially visible won't be drawn for scroll or keyboard events.
 ], function(
     Jupyter,
     OrchestraApplication,
     $,
-    dialog
+    dialog,
+    Handsontable
 ) {
 
     // In the Jupyter context, it might be nice to expose all available variables defined thus far in the ipython notebook

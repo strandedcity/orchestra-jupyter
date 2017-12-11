@@ -2,7 +2,7 @@ define([
     "jquery",
     "underscore",
     "dataFlow/dataTree",
-    "HandsontableWrapper",
+    "HandsontableWrapper", // THIS IS REQUIRED TO BE LOADED LONG BEFORE THIS LINE UNLESS I INSTALL A CSS LOADER WITH A CALLBACK TO MAKE SURE THE STYLES ARE READY. to make sure the CSS styles load up BEFORE the first table is created. Otherwise, the table virtual scroll is completely broken -- the cells after those initially visible won't be drawn for scroll or keyboard events.
     "dataFlow/enums"
 ],function($,_,DataTree,Handsontable,ENUMS){
 
@@ -48,9 +48,9 @@ define([
             // width: 200,
             colWidths: 100,
             minSpareRows: 100,
-            renderAllRows: true, // really shouldn't be needed, yet virtual scrolling is a total fail for me
+            // renderAllRows: true, // really shouldn't be needed, yet virtual scrolling is a total fail for me
             // colHeaders: true,
-            // rowHeaders: true, // demonstrates the issue I'm seeing ... row headers don't scroll
+            rowHeaders: true, // demonstrates the issue I'm seeing ... row headers don't scroll
         });
 
         var that=this;
