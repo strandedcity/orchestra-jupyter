@@ -115,7 +115,9 @@ define([
         "<% _.each(inputs,function(i){ %> "+
         "       <div class='cmpt_io'>"+
         "           <span class='cmpt_io_name'><%= i.shortName %><% if (i.required) { %>*<% } %></span>"+
-        "           <span class='cmpt_io_details'>(<%= i.type %>, as <%= i.interpretAs %>) <%= i.desc %></span>"+
+        "           <span class='cmpt_io_details'>(<%= i.type %>, as <%= i.interpretAs %>) <%= i.desc %>"+
+        "               <% if (i.defaultValue != '(none)') { %>Default: <%= i.defaultValue %><% } %>"+
+        "           </span></span>"+
         "       </div> "+
         "<% }) %>"+
 
@@ -191,18 +193,19 @@ define([
 
 
         if (constructorName && (constructorName == "OutputView" || constructorName == "InputView")) {
-
-            //  HELP TOOLTIPS FOR INPUTS AND OUTPUTS
-            var jsonRep = representIO(viewObject.model),
-                isOutputView = constructorName == "OutputView";
-
-            showPopoverWithDelay(
-                _titleContentTemplate(jsonRep),
-                isOutputView ? _bodyContentTemplateOutput(jsonRep) : _bodyContentTemplate(jsonRep),
-                isOutputView ? "right" : "left",
-                null,
-                e.currentTarget
-            );
+            // // Commented out 12/10/17. These I/O Tooltips work, but I find them distracting and
+            // unnecessary because of the component tooltips. So... commenting out for now.
+            // //  HELP TOOLTIPS FOR INPUTS AND OUTPUTS
+            // var jsonRep = representIO(viewObject.model),
+            //     isOutputView = constructorName == "OutputView";
+            //
+            // showPopoverWithDelay(
+            //     _titleContentTemplate(jsonRep),
+            //     isOutputView ? _bodyContentTemplateOutput(jsonRep) : _bodyContentTemplate(jsonRep),
+            //     isOutputView ? "right" : "left",
+            //     null,
+            //     e.currentTarget
+            // );
         } else if (constructorName && constructorName.indexOf("ComponentView") > -1) {
 
             //  HELP TOOLTIPS FOR COMPONENTS
@@ -241,7 +244,7 @@ define([
 
 
             $(targetElement).one('mouseleave',clearPopover);
-        },300);
+        },600);
 
         $(targetElement).one('mouseleave',function(){
             clearTimeout(cancel);
