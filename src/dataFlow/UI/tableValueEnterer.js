@@ -10,61 +10,65 @@ define([
         this.init.apply(this,arguments);
     }
 
-    TableView.prototype.init = function(data,x,y,callback,dataType){
+    // Configuration:
+    // {
+    //     data: dataTree,
+    //     dataType: ENUMS...
+    //     position: {x: 100, y: 100},
+    //     callback: fn(outputDataTree), (optional)
+    //     readOnly: true, // determines, for now, if the rows are "0,1,2" (in write mode) or {0;0} (1) (in read mode)
+    // }
+
+
+    TableView.prototype.init = function(data,x,y,callback,dataType,readOnly){
         this.callback = callback;
         this.data = data;
         this.dataType = dataType;
+        this.readOnly = false;
 
         _.bindAll(this,
             "parseInput",
             "dataAsArrayOfArrays",
-            "initializeTable"
+            "initializeTable",
+            "cleanDataArray"
         );
 
         this.overlay = this.createOverlay();
 
-        this.$tableContainer = this.insertTable(x,y).find('#editableTable');
+        this.$tableContainer = this.insertTable(x,y);
 
-        var tabularData = this.dataAsArrayOfArrays(data);
+        var arrays = this.dataAsArrayOfArrays(data)
+        this.dataArray = arrays[0];
+        this.dataHeaderArray = arrays[1];
 
-        var fakedata = [];
-        for (var i=0; i<100; i++) {
-            fakedata.push([i])
-        }
-
-        this.initializeTable(fakedata);
+        this.initializeTable();
     };
 
-    TableView.prototype.initializeTable = function(tabularData){
-
-        this.table = new Handsontable(this.$tableContainer.get(0), {
-            data: tabularData,
-            // rowHeaders: false,
-            // colHeaders: false,
-            // contextMenu: true,
-            // height: 200,
-            // width: 200,
-            colWidths: 100,
-            minSpareRows: 100,
-            // renderAllRows: true, // really shouldn't be needed, yet virtual scrolling is a total fail for me
-            // colHeaders: true,
-            rowHeaders: true, // demonstrates the issue I'm seeing ... row headers don't scroll
-        });
+    TableView.prototype.initializeTable = function(){
 
         var that=this;
-        // this.table.updateSettings({
-        //     cells: function (row, col, prop) {
-        //         // console.log(row,col,prop);
-        //         var cellProperties = {};
-        //
-        //         if (that.table.getSourceData()[row][prop] === 'Nissan') {
-        //             cellProperties.readOnly = true;
-        //         }
-        //
-        //         return cellProperties;
-        //     }
-        // })
-    }
+
+
+        this.table = new Handsontable(this.$tableContainer.find('#editableTable').get(0), {
+            data: that.dataArray,
+            contextMenu: true,
+            colWidths: 100,
+            minSpareRows: 50,
+            rowHeaders: that.readOnly ? function(idx) {
+                return that.dataHeaderArray[idx] || "";
+            } : true, // when this allows input, showing path-matching is over-complicated.
+            columns: [
+                {
+                    validator: 'numeric' // depends on dataType...
+                }
+            ],
+            // afterChange: function () {
+            //     if (typeof that.callback === "function") {
+            //         that.callback(that.dataArray);
+            //     }
+            // }
+        });
+    };
 
     TableView.prototype.parseInput = function(newData, item){
         // This whole module is a mess. Obviously, this data-parser should be configurable to parse user input
@@ -93,23 +97,20 @@ define([
     };
 
     TableView.prototype.dataAsArrayOfArrays = function(tree){
-        var outputData = [];
+        var outputData = []; // each element is a row
+        var outputLabels = []; // each element is a row LABEL
         tree.recurseTree(function(data,node){
             // print column headers -- these are not editable:
             var path = node.getPath();
-            outputData.push(["{"+path.join(";")+"}"]);
+            var labelBase = "{"+path.join(";")+"}";
 
-            _.each(data,function(item,index){
-                var number = _.isNumber(item),
-                    bool = _.isBoolean(item),
-                    editable = number || bool,
-                    cssClass = editable ? "" : "non",
-                    dataString = item.toString();
-                outputData.push([dataString]);
+            _.each(data,function(item,idx){
+                outputData.push([item.toString()]);
+                outputLabels.push(labelBase + " (" + (idx) + ")");
             });
         });
 
-        return outputData;
+        return [outputData,outputLabels];
     };
 
 //     TableView.prototype.populate = function(tree,$table){
@@ -232,10 +233,24 @@ define([
         return overlay;
     };
 
+    TableView.prototype.cleanDataArray = function () {
+        // Return a copy of 'dataArray' that's being edited where empty strings have been removed
+        return _.filter(_.unzip(this.dataArray)[0], function(item){
+            return !_.isNull(item);
+        });
+    };
+
     TableView.prototype.destroy = function(){
-        $('.editData').off();
+        this.table.destroy();
         this.$tableContainer.remove();
-        if (typeof this.callback === "function") this.callback(this.data);
+
+        if (typeof this.callback === "function" && !this.readOnly) {
+            var that = this,
+                cleanData = this.cleanDataArray();
+            console.log('clean data: ',cleanData);
+            this.data.setDataAtPath(that.cleanDataArray(),[0]);
+            this.callback(this.data);
+        }
     };
 
     TableView.prototype.insertTable = function(x,y){
