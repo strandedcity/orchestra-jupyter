@@ -71,7 +71,7 @@ define([
                 };
             require(["dataFlow/UI/tableValueEnterer"],function(TableView){
                 // no reference necessary. The slider will clean itself up.
-                new TableView(data,x,y,callback,that.model.type === ENUMS.OUTPUT_TYPES.STRING);
+                new TableView(data,x,y,callback,that.model.type);
             });
         };
 

@@ -19,12 +19,16 @@ define([
     //     readOnly: true, // determines, for now, if the rows are "0,1,2" (in write mode) or {0;0} (1) (in read mode)
     // }
 
+    var mapIODataTypeToTableCellTypes = {};
+    mapIODataTypeToTableCellTypes[ENUMS.OUTPUT_TYPES.NUMBER] = {type: "numeric"};
+    mapIODataTypeToTableCellTypes[ENUMS.OUTPUT_TYPES.STRING] = {type: "text"};
+    mapIODataTypeToTableCellTypes[ENUMS.OUTPUT_TYPES.BOOLEAN] = {type: "checkbox"};
 
     TableView.prototype.init = function(data,x,y,callback,dataType,readOnly){
         this.callback = callback;
         this.data = data;
         this.dataType = dataType;
-        this.readOnly = false;
+        this.readOnly = !!readOnly; // false if undefined
 
         _.bindAll(this,
             "parseInput",
@@ -47,7 +51,7 @@ define([
     TableView.prototype.initializeTable = function(){
 
         var that=this;
-
+console.log(mapIODataTypeToTableCellTypes[that.dataType])
 
         this.table = new Handsontable(this.$tableContainer.find('#editableTable').get(0), {
             data: that.dataArray,
@@ -58,9 +62,7 @@ define([
                 return that.dataHeaderArray[idx] || "";
             } : true, // when this allows input, showing path-matching is over-complicated.
             columns: [
-                {
-                    validator: 'numeric' // depends on dataType...
-                }
+                mapIODataTypeToTableCellTypes[that.dataType]
             ],
             // afterChange: function () {
             //     if (typeof that.callback === "function") {
@@ -235,9 +237,19 @@ define([
 
     TableView.prototype.cleanDataArray = function () {
         // Return a copy of 'dataArray' that's being edited where empty strings have been removed
-        return _.filter(_.unzip(this.dataArray)[0], function(item){
-            return !_.isNull(item);
-        });
+        if (this.dataType === ENUMS.OUTPUT_TYPES.NUMBER) {
+            return _.filter(_.unzip(this.dataArray)[0], function(item){
+                return !_.isNull(item);
+            });
+        } else if (this.dataType === ENUMS.OUTPUT_TYPES.STRING) {
+            // how annoying to find a whole different shape to the data when it's a string type cell...
+            return _.map(_.filter(this.dataArray, function(itm){
+                return !_.isEmpty(itm) && !_.isEmpty(itm[0]);
+            }),function(stringdata){
+                return stringdata[0];
+            });
+        }
+
     };
 
     TableView.prototype.destroy = function(){
@@ -247,7 +259,6 @@ define([
         if (typeof this.callback === "function" && !this.readOnly) {
             var that = this,
                 cleanData = this.cleanDataArray();
-            console.log('clean data: ',cleanData);
             this.data.setDataAtPath(that.cleanDataArray(),[0]);
             this.callback(this.data);
         }
