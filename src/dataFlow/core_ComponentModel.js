@@ -287,7 +287,46 @@ define([
         recalculate: function(){
             var that=this;
 
-            var outputPromise = Promise.all(arguments).then(function(){
+            // "List" arguments will arrive in arrays, ie, [Promise, Promise, Promise]
+            // "Item" arguments will arrive directly, ie, Promise
+            // We need to resolve all promises and pass to the calculation function, which means
+            // unpacking them while maintaining a record of their shape, resolving them, then packing
+            // back up
+
+            var argumentsLinear = [];
+            var argumentArrayLengths = _.map(arguments, function (arg) {
+                var listArg = _.isArray(arg);
+                if (listArg) {
+                    _.each(arg,function(a){
+                        argumentsLinear.push(a);
+                    })
+                } else {
+                    argumentsLinear.push(arg);
+                }
+
+                return listArg ? arg.length : 0;
+            });
+
+            var outputPromise = Promise.all(argumentsLinear)
+                .then(function(valuesLinear){
+                    return new Promise(function (resolve,reject) {
+                        // Use the 'argumentArrayLengths' meta-data to rebuild the original arrays, but with
+                        // the resolved values this time
+                        var resolvedArguments = [];
+                        _.each(argumentArrayLengths,function (arrLength) {
+                            if (arrLength === 0) {
+                                resolvedArguments.push(valuesLinear.shift());
+                            } else {
+                                // This is a list parameter. Don't forget that while .shift()
+                                // mutates the array, .slice() doesn't.
+                                resolvedArguments.push(valuesLinear.slice(0,arrLength));
+                                valuesLinear = valuesLinear.slice(arrLength);
+                            }
+                        });
+                        resolve(resolvedArguments);
+                    })
+                })
+                .then(function(){
                 // function will be passed resolved values from arguments to recalculate
                 // recalculate is called with input values (or promises for input values) in the order in which they
                 // are defined in the component. So "Add(A,B)" will pass values for A and B to recalculate.

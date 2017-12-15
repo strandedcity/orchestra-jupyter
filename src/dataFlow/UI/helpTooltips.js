@@ -226,8 +226,9 @@ define([
 
     function showPopoverWithDelay(title,content,positionPreference,extraCss,targetElement){
         var cancel = setTimeout(function(){
+            if (!$currentAnchor) return;
 
-            if (extraCss && $currentAnchor) {
+            if (extraCss) {
                 $currentAnchor.on("show.bs.popover", function(){
                     $(this).data("bs.popover").tip().css(extraCss);
                 });
