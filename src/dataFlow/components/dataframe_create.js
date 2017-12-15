@@ -28,7 +28,7 @@ define([
             }, opts || {},{
                 inputs: inputs,
                 outputs: output,
-                pythonTemplate: "<%= RESULT %> = pd.read_csv('<%= IN_L %>')\n" // , separator='<%= IN_S %>', delimiter='<%= IN_D %>'
+                pythonTemplate: "<%= RESULT %> = pd.read_csv(<%= IN_L %>)\n" // , separator='<%= IN_S %>', delimiter='<%= IN_D %>'
             });
 
             this.base_init(args);

@@ -285,6 +285,11 @@ define([
             });
         },
         recalculate: function(){
+            // This function is highly customized for Python. For JavaScript-Backed projects
+            // Recalculation functions can be called directly from here. However, the promise resolution
+            // here is a key part of using any async calculation, as we would do if calculation were
+            // happening on a server, or web worker. So there's value here, even in JS-land, but it
+            // will need further generification.
             var that=this;
 
             // "List" arguments will arrive in arrays, ie, [Promise, Promise, Promise]
@@ -292,7 +297,6 @@ define([
             // We need to resolve all promises and pass to the calculation function, which means
             // unpacking them while maintaining a record of their shape, resolving them, then packing
             // back up
-
             var argumentsLinear = [];
             var argumentArrayLengths = _.map(arguments, function (arg) {
                 var listArg = _.isArray(arg);
@@ -305,6 +309,16 @@ define([
                 }
 
                 return listArg ? arg.length : 0;
+            });
+
+            // When strings are entered via the Handsontable directly on this component, we will
+            // have a literal string instead of a promise for a string representing a python variable
+            // that resolves to a string. This is not the case if there's a wired connection.
+            // As with numbers, we can still use the string literal. But we need to escape it.
+            // This may not seem like the best place to do this (it's really a problem on the input itself)
+            // but doing it here manages to solve the whole problem in one location.
+            argumentsLinear = _.map(argumentsLinear,function (a) {
+                return typeof a === "string" ? '"' + a + '"' : a; // a -> "a"
             });
 
             var outputPromise = Promise.all(argumentsLinear)

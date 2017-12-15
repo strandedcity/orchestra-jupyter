@@ -22,7 +22,7 @@ define([
             }, opts || {},{
                 inputs: inputs,
                 outputs: output,
-                pythonTemplate: "<%= RESULT %> = '<%= IN_S %>'\n" // OUTPUT = N
+                pythonTemplate: "<%= RESULT %> = <%= IN_S %>\n" // OUTPUT = N
             });
             this.base_init(args);
         },
