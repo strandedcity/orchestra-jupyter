@@ -3,7 +3,7 @@ define([
     "underscore",
     "dataFlow/enums",
     "backbone",
-    "bootstrap3"
+    // "bootstrap3" // loading this actually causes a conflict with Jupyter. The top menu items fail to open. However, because bootstrap is already on the page, we can safely remove it here. But it introduces a dependency on Jupyter's copy of bootstrap...
 ],function(
     $,_,ENUMS,Backbone
 ){

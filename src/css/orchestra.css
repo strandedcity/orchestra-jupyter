@@ -19,19 +19,22 @@ canvas {
     top: 0px;
     left: 0px;
 }
-.navbar {
-    z-index: 102;
-    border-radius: 0px !important;
-}
-.navbar-project-title {
-    /*text-transform: capitalize;*/
-    float: left;
-    height: 50px;
-    padding: 15px 15px;
-    font-size: 17px;
-    line-height: 20px;
-    font-style: italic;
-}
+/*  TODO: These styles are needed for orchestra3d, but conflict in Jupyter-Orchestra (they make Jupyter's nav buttons appear above its dropdown menus, such as file, edit, etc.
+    These should be moved to a separate style sheet in orchestra, so that bootstrap conflicts can be avoided.
+ */
+/*.navbar {*/
+    /*z-index: 102;*/
+    /*border-radius: 0px !important;*/
+/*}*/
+/*.navbar-project-title {*/
+    /*!*text-transform: capitalize;*!*/
+    /*float: left;*/
+    /*height: 50px;*/
+    /*padding: 15px 15px;*/
+    /*font-size: 17px;*/
+    /*line-height: 20px;*/
+    /*font-style: italic;*/
+/*}*/
 .titleChangerWidget {display: none;}
 #titleChanger {width: 400px;}
 
