@@ -17,8 +17,6 @@ define([
 
         if (component.componentName === "SliderComponent") {
             return new SliderComponentView(component);
-        } else if (component.componentName === "NumberComponent") {
-            return new EditableNumberComponentView(component);
         } else if (component.componentName === "BooleanToggleComponent") {
             console.log('creating toggler')
             return new BooleanToggleComponentView(component);
@@ -220,27 +218,6 @@ define([
 
         this.init(component);
      }
-
-
-    /* Editable Number Components let you type numbers directly into the component */
-    function EditableNumberComponentView(component){
-        _.extend(this,ComponentView.prototype,{
-            click: function(x,y){
-                // Show the table-number-enterer UI. It cleans up after itself.
-                var data = component.getInput("N").get('persistedData') || new DataTree(),
-                    callback = function(tree){
-                        component.getInput("N").assignPersistedData(tree);
-                    };
-                require(["dataFlow/UI/tableValueEnterer"],function(TableView){
-                    // no reference necessary. The slider will clean itself up.
-                    new TableView(data,x,y,callback);
-                });
-            }
-        });
-        _.bindAll(this,"click");
-
-        this.init(component);
-    }
 
     ///////////////////////
     // BEGIN GENERIC COMPONENTVIEW METHODS

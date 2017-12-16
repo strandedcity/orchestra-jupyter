@@ -58,8 +58,6 @@ define([
 
         var that = this;
         this.click = function(x,y){
-            console.warn("CLICK HANDLER DUPLICATES CODE IN COMPONENTVIEW. FIX!");
-
             if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER &&
                 that.model.type !== ENUMS.OUTPUT_TYPES.BOOLEAN &&
                 that.model.type !== ENUMS.OUTPUT_TYPES.STRING) return;
