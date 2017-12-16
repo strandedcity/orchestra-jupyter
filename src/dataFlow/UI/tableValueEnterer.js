@@ -151,12 +151,10 @@ define([
 
     TableView.prototype.insertTable = function(x,y){
         // add tableview at spec'd position
-        var $tableContainer = $("<div class='tableView'><div id='editableTable' style='position:relative; overflow:hidden; width: 200px; height: 200px;'></div></div>");
+        var $tableContainer = $("<div class='tableView'><div id='editableTable' style='position:relative; height: 200px;'></div></div>");
         $tableContainer.css({
             top: y,
             left: x,
-            overflow:'hidden',
-            width: 200,
             height: 200,
             'z-index': 102,
             position: 'absolute',
