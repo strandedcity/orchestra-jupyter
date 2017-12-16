@@ -107,13 +107,14 @@ define([
     TableView.prototype.cleanDataArray = function () {
         // Return a copy of 'dataArray' that's being edited where empty strings have been removed
         if (this.dataType === ENUMS.OUTPUT_TYPES.NUMBER) {
-            return _.map(_.filter(_.unzip(this.dataArray)[0], function(item){
-                return !_.isEmpty(item) && !_.isNaN(Number(item));
-            }), function (itm){
-                return Number(itm);
+            return _.map(_.filter(this.dataArray, function(itm){
+                return !_.isEmpty(itm) && !_.isUndefined(itm[0]) && !_.isNull(itm[0]) && !_.isNaN(Number(itm[0]));
+            }),function(numberdata){
+                // return from the filter will be an object that still has the column index
+                // eg: {"0": <number>}
+                return Number(numberdata[0]);
             });
         } else if (this.dataType === ENUMS.OUTPUT_TYPES.STRING) {
-            // how annoying to find a whole different shape to the data when it's a string type cell...
             return _.map(_.filter(this.dataArray, function(itm){
                 return !_.isEmpty(itm) && !_.isEmpty(itm[0]);
             }),function(stringdata){
