@@ -129,15 +129,24 @@ define([
     };
 
     TableView.prototype.destroy = function(){
-        this.table.destroy();
-        this.$tableContainer.remove();
+        // So we capture the value the user entered before they hit enter
+        // If we don't do this and then wait a beat, users have to hit enter
+        // or down for their info to be collected. Confusing!
+        this.table.deselectCell();
 
-        if (typeof this.callback === "function" && !this.readOnly) {
-            var that = this;
-            // TODO: Handle multiple paths for input? Not sure if that's really worth it or not....
-            this.data.setDataAtPath(that.cleanDataArray(),[0]);
-            this.callback(this.data);
+        var that=this;
+        function removeAll(){
+            that.table.destroy();
+            that.$tableContainer.remove();
+
+            if (typeof that.callback === "function" && !that.readOnly) {
+                // TODO: Handle multiple paths for input? Not sure if that's really worth it or not....
+                that.data.setDataAtPath(that.cleanDataArray(),[0]);
+                that.callback(that.data);
+            }
         }
+
+        _.delay(removeAll,10); // So deselectCell() can finish it's business
     };
 
     TableView.prototype.insertTable = function(x,y){
