@@ -229,7 +229,7 @@ define([
     });
 
 
-    components.ExportCSV = DataFlow.Component.extend({
+    components.ExportCSVFile = DataFlow.Component.extend({
         initialize: function(opts){
             var inputs = this.createIObjectsFromJSON([
                 {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe for export" },
@@ -250,11 +250,54 @@ define([
             this.base_init(args);
         }
     },{
-        "label": "Export a Dataframe as a CSV",
+        "label": "Export a Dataframe as a CSV File",
         "desc": "Serialize a Pandas Dataframe into CSV format, and save the file to a local path on your computer"
     });
 
 
+
+    components.ExposeAPIEndpoint = DataFlow.Component.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "E", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Endpoint Name" },
+                {required: true, shortName: "A", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Arguments for endpoint", interpretAs: DataFlow.INTERPRET_AS.LIST },
+                {required: false, default: "", shortName: "T", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Argument Test Values", interpretAs: DataFlow.INTERPRET_AS.LIST }
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "A", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Argument Values"}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "API"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "# GET /<% print(IN_E.replace(/[\"]+/g, '')); %>\n"+
+                                "import json\n"+
+                                "try:\n"+ // try/catch here because in Orchestra land, REQUEST won't be defined and will throw an error we don't want.
+                                "  req = json.loads(REQUEST)\n"+
+                                "  args = req['args']\n"+
+
+                                "  <%= RESULT %> = (<% _.each(IN_A , function(argVariable,idx) { %>"+
+                                "  <% if (idx != 0) { print(','); } %>"+
+                                "  args[<%= argVariable %>][0]"+
+                                "  <% }) %>)\n"+
+                                "except:\n"+
+                                // This version of the code copies the input values to the output values
+                                // prevents errors.
+                                "  <%= RESULT %> = (<% _.each(IN_A , function(argVariable,idx) { %>"+
+                                "  <% if (idx != 0) { print(','); } %>"+
+                                // NOTE! For length measurement of IN_T... testing >2 b/c the empty state INCLUDES QUOTES
+                                "  <% if (IN_T[idx] && typeof IN_T[idx] == 'string' && IN_T[idx].length > 2) { %><%= IN_T[idx] %> <% }  else { print(argVariable); } %>"+
+                                "  <% }) %>)\n"
+            });
+            this.base_init(args);
+        }
+    },{
+        "label": "Expose this Orchestra Definition as an API via Jupyter Kernel Gateway",
+        "desc": "Create a web microservice based on your Jupyter definition. Accept inputs using this component, and include a single 'print' component to send output to the response."
+    });
 
 
     components.SpreadsheetComponent = components.PrintComponent.extend({
