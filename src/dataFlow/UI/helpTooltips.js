@@ -171,8 +171,12 @@ define([
         e.preventDefault();
 
         // The "view" object associated with the thing that was clicked for context menu:
-        var viewObject = $(e.currentTarget).data('viewObject'),
-            constructorName = viewObject.constructor.name;
+        try {
+            var viewObject = $(e.currentTarget).data('viewObject'),
+                constructorName = viewObject.constructor.name;
+        } catch (e) {
+            return;
+        }
 
         // Start fresh
         clearPopover();
