@@ -91,13 +91,8 @@ define([
         that.listenTo(that.component.getOutput("D"),"change",that.displayVals);
     }
 
-    // A component that visualiz
+    // A component that visualizes charts
     function MatPlotLibComponentView(component) {
-
-        /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
-         * the slider, but not the display of the slider itself. */
-
-
         var that = this,
             pathNodeTemplate = _.template("<div class='pathNodeTitle'>{<%= path %>}</div>"),
             dataTemplate = _.template("<div class='dataRow'><%= text %></div>"),
