@@ -87,6 +87,14 @@ define([
     dialog
 ) {
 
+    var ORCHESTRA_HEADS_UP_MESSAGE =
+        "### This cell contains Orchestra Visual Flow Programming Project Data. \n"+
+        "### Output variables will be defined here for use lower in your notebook. \n"+
+        "### Please do not edit this cell's contents directly, as your changes may be overwritten.\n"+
+        "###\n"+
+        "### If You do not have the Orchestra VFP Extension Installed, please visit:\n"+
+        '### https://OrchestraMachineLearning.com/install-jupyter-extension/\n';
+
     // In the Jupyter context, it might be nice to expose all available variables defined thus far in the ipython notebook
     // as a pre-populated component with a bunch of outputs.
     // The list is easy to gather... dir() >> returns a list of them. Remove anything with underscore prefixes.
@@ -152,6 +160,15 @@ define([
         var closeButton = $('<button class="btn btn-large closeOrchestraButton" style="z-index:500;position: absolute;top: 10px;left: 10px;">Return to Jupyter</button>');
         $('body').append(closeButton);
         closeButton.on('click',function () {
+            var transcript = orchestra_application.getTranscript();
+            if (transcript.charAt(0) == "#") {
+                var spliced = transcript.split("\n");
+                spliced.splice(1, 0, ORCHESTRA_HEADS_UP_MESSAGE);
+                transcript = spliced.join('\n');
+            }
+
+
+            cell.code_mirror.setValue(transcript);
             orchestra_application.close();
             closeButton.off();
             closeButton.hide(250,function () {
@@ -195,14 +212,7 @@ define([
 
                     function createOrchestraCell(){
                         cell.metadata[metadata_key] = {};
-                        cell.code_mirror.setValue(
-                            "### This cell contains Orchestra Visual Flow Programming Project Data. \n"+
-                            "### Output variables will be defined here for use lower in your notebook. \n"+
-                            "### Please do not edit this cell's contents directly, as your changes may be overwritten.\n"+
-                            "###\n"+
-                            "### If You do not have the Orchestra VFP Extension Installed, please visit:\n"+
-                            '### https://OrchestraMachineLearning.com/install-jupyter-extension/\n'
-                        );
+                        cell.code_mirror.setValue(ORCHESTRA_HEADS_UP_MESSAGE);
                         openProjectAttachToCell(cell);
                     }
 

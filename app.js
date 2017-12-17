@@ -256,6 +256,11 @@ define([
         App.prototype.setupEngine = function (J) {
             console.warn("SETUP ENGINE NEEDS TO BE IMPLEMENTED NOW")
             PythonEngine.setup(J);
+            PythonEngine.resetTranscript();
+        };
+
+        App.prototype.getTranscript = function () {
+            return PythonEngine.getTranscript();
         };
 
         App.prototype.close = function () {

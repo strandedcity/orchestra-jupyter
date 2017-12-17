@@ -85,6 +85,11 @@ define([], function(){
         this.Jupyter = null;
         this.executionQueue = [];
 
+        // A running record of python commands during the session.
+        // this is meant to be retrieved by the main application so that
+        // Orchestra's python can be 'dumped' into its cell as actual runnable code
+        this.transcript = "";
+
         var that = this;
 
         var importStatements =
@@ -93,6 +98,24 @@ define([], function(){
             "import matplotlib as mpl\n"+
             "import matplotlib.pyplot as plt\n"+
             "%matplotlib inline\n";
+
+        this.resetTranscript = function(){
+            that.transcript = importStatements;
+        };
+
+        this.getTranscript = function () {
+            // This is a tiny white lie.
+            // In general, we just return that.transcript
+            // However, the Kernel gateway API requires the API annotation comment
+            // to be the first line of the cell. So, if there's an API component in the mix,
+            // we'll use a regex here to find that line, and copy it to the very topmost line
+            var re = /# (GET|POST|DELETE|PUT) \/.*\n/g;
+            var found = that.transcript.match(re);
+            if (found) {
+                that.transcript = found[0] + that.transcript;
+            }
+            return that.transcript;
+        };
 
         this.setup = function(J) {
             that.Jupyter = J;
@@ -154,7 +177,8 @@ define([], function(){
                 // execute the calculation. Might be nice to put some status in here, as some operations could run long
                 statusSet("RUNNING");
 
-                console.log("Executing Python: " + pythonCode);
+                console.log("Executing Python: ", pythonCode);
+                that.transcript += pythonCode;
 
                 Jupyter.notebook.kernel.execute(pythonCode,
                     {

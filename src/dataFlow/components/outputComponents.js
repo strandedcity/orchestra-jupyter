@@ -275,7 +275,10 @@ define([
                 outputs: output,
                 pythonTemplate: "# GET /<% print(IN_E.replace(/[\"]+/g, '')); %>\n"+
                                 "import json\n"+
-                                "try:\n"+ // try/catch here because in Orchestra land, REQUEST won't be defined and will throw an error we don't want.
+                                // REQUEST won't be defined and will throw an error we don't want in Orchestra/Jupyter
+                                // but it's also what makes the API work. So try / catch and replace the value
+                                // so you can develop on top of it easily
+                                "try:\n"+
                                 "  req = json.loads(REQUEST)\n"+
                                 "  args = req['args']\n"+
 
@@ -284,8 +287,7 @@ define([
                                 "  args[<%= argVariable %>][0]"+
                                 "  <% }) %>)\n"+
                                 "except:\n"+
-                                // This version of the code copies the input values to the output values
-                                // prevents errors.
+                                // When the REQUEST is undefined, use test values or fall back to the variable names themselves
                                 "  <%= RESULT %> = (<% _.each(IN_A , function(argVariable,idx) { %>"+
                                 "  <% if (idx != 0) { print(','); } %>"+
                                 // NOTE! For length measurement of IN_T... testing >2 b/c the empty state INCLUDES QUOTES
