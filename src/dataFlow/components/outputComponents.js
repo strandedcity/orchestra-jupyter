@@ -202,6 +202,60 @@ define([
         "desc": "Plot two variables against each other using connecting lines"
     });
 
+
+    components.ExportPythonVariable = DataFlow.Component.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, desc: "Data for export" },
+                {required: true, shortName: "N", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Variable Names" }
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "P", type: DataFlow.OUTPUT_TYPES.WILD, invisible: true}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "Export Vars"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "<% print(IN_N.replace(/[\"]+/g, '')); %> = <%= IN_D %> #<%= RESULT %>\n"
+            });
+            this.base_init(args);
+        }
+    },{
+        "label": "Export a variable for use in your Jupyter Document",
+        "desc": "Makes a Python object available in the Jupyter Context"
+    });
+
+
+    components.ExportCSV = DataFlow.Component.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe for export" },
+                {required: true, shortName: "P", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Output path (use absolute paths)" }
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "P", type: DataFlow.OUTPUT_TYPES.WILD, invisible: true}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "Export CSV"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "<%= RESULT %> = <%= IN_D %>.to_csv(<%= IN_P %>)\n" // result is None, but hidden anyways
+            });
+            this.base_init(args);
+        }
+    },{
+        "label": "Export a Dataframe as a CSV",
+        "desc": "Serialize a Pandas Dataframe into CSV format, and save the file to a local path on your computer"
+    });
+
+
+
     return components;
 });
 

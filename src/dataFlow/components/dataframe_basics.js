@@ -91,6 +91,32 @@ define([
         "desc": "Retrieve the dimensions and data types of a Dataframe"
     });
 
+    components.DataframeCopy = DataFlow.Component.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe to copy"},
+                // {required: false, shortName: "D", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Deep Copy the Data as well?"}
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "A copy of the data frame"}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "DF Copy"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "<%= RESULT %> = <%= IN_D %>.copy()\n"
+            });
+
+            this.base_init(args);
+        }
+    },{
+        "label": "Copy a Pandas Dataframe",
+        "desc": "Make a copy of a pandas dataframe"
+    });
+
 
     // TODO: INDEXING
     // TODO: SLICING HIGHER-DIM ARRAYS?
