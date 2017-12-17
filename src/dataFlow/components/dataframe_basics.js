@@ -52,7 +52,8 @@ define([
             }, opts || {},{
                 inputs: inputs,
                 outputs: output,
-                pythonTemplate: "<%= IN_D %>.insert(<%= IN_I %>, <%= IN_L %>, <%= IN_V %>, allow_duplicates=True)\n<%= RESULT %> = <%= IN_D %>\n"
+                // Dataframe is copied to perform this operation, which would otherwise mutate the source dataframe
+                pythonTemplate: "<%= RESULT %> = <%= IN_D %>.copy()\n<%= RESULT %>.insert(<%= IN_I %>, <%= IN_L %>, <%= IN_V %>, allow_duplicates=False)\n"
             });
 
             this.base_init(args);

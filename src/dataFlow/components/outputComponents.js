@@ -256,6 +256,33 @@ define([
 
 
 
+
+    components.SpreadsheetComponent = components.PrintComponent.extend({
+        initialize: function(opts){
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe for viewing" }
+            ], opts, "inputs");
+
+            var output = this.createIObjectsFromJSON([
+                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, invisible: true}
+            ], opts, "output");
+
+            var args = _.extend({
+                componentPrettyName: "Spreadsheet"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output,
+                pythonTemplate: "<%= RESULT %> = print(<%= IN_D %>.to_json())\n" // result is assigned an escaped json blob
+            });
+            this.base_init(args);
+        }
+    },{
+        "label": "View a Pandas Dataframe in a Spreadsheet",
+        "desc": "To conveniently view a whole dataframe in the browser, regardless of size, plug it into this component and single-click the component."
+    });
+
+
+
     return components;
 });
 

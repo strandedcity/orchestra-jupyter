@@ -6,7 +6,7 @@ define([
     "dataFlow/enums"
 ],function($,_,DataTree,Handsontable,ENUMS){
 
-    function TableView(data,x,y,callback,dataType){
+    function TableView(data,x,y,callback,dataType,readOnly){
         this.init.apply(this,arguments);
     }
 
@@ -151,11 +151,12 @@ define([
 
     TableView.prototype.insertTable = function(x,y){
         // add tableview at spec'd position
-        var $tableContainer = $("<div class='tableView'><div id='editableTable' style='position:relative; height: 200px;'></div></div>");
+        var $tableContainer = $("<div class='tableView'><div id='editableTable' style='position:relative; overflow: hidden; height: 200px;'></div></div>");
         $tableContainer.css({
             top: y,
             left: x,
             height: 200,
+            width: 150,
             'z-index': 102,
             position: 'absolute',
             display: 'block'

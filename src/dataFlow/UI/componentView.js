@@ -22,11 +22,57 @@ define([
             return new BooleanToggleComponentView(component);
         } else if (component.componentName === "PrintComponent") {
             return new PrintComponentView(component);
+        } else if (component.componentName === "SpreadsheetComponent") {
+            return new SpreadsheetComponentView(component);
         } else if (component.componentName === "LinePlot") {
             return new MatPlotLibComponentView(component);
         } else {
             return new ComponentView(component);
         }
+    }
+
+
+    function SpreadsheetComponentView(component){
+
+        var that = this;
+
+
+        _.extend(this,ComponentView.prototype,{
+
+            click: function(x,y){
+                // Show the slider and overlay. It cleans up itself.
+                this.displayVals()
+            },
+            displayVals: function(){
+                console.log('displayvals on spreadsheetcomponentview is called')
+                // Because the outputs are promises, we need to capture their resolved values rather than printing directly
+                var textOutput = "", dataAndNodes = [];
+                that.component.getOutput("D").getTree().recurseTree(function (data, node) {
+                    dataAndNodes.push(node);
+                    _.each(data,function (d) {
+                        dataAndNodes.push(d);
+                    })
+                });
+                Promise.all(dataAndNodes).then(function (values) {
+                    _.each(values,function(val,index){
+                        if (val.constructor.name === "Node") {
+                            // textOutput += pathNodeTemplate({path: val.getPath()});
+                        } else {
+                            require(["dataFlow/UI/spreadsheetView"],function(SpreadsheetView){
+                                new SpreadsheetView(JSON.parse(val.text));
+                            });
+                            // TODO: Allow some way to flip between nodes to view whole dataframes?
+                            console.warn("TODO: MULTIPLE SPREADSHEETS SHOULD IDEALLY BE HANDLED");
+                            return;
+                        }
+                    });
+                });
+            }
+        });
+
+        that.init(component);
+
+        // that.listenTo(that.component.getOutput("D"),"change",that.displayVals);
     }
 
     function PrintComponentView(component) {
