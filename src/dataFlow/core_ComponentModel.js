@@ -157,9 +157,11 @@ define([
                 }
             } else if (pulse.get('state') === "RECALCULATION")  {
                 //console.trace();
-                this._handleInputChange();
                 var propagate = pulse.updatePathCounts(this);
-                if (propagate) this.trigger('pulse',pulse);
+                if (propagate) {
+                    this._handleInputChange();
+                    this.trigger('pulse',pulse);
+                }
             }
 
             //var propagateNow = pulse.updatePathCounts(this);;
@@ -369,18 +371,26 @@ define([
             var retObj = {};
             if (this.outputs.length === 1) {
                 // When one output, the output here is just the variable assigned (in python) to hold the output
-                retObj[this.outputs[0].shortName] = outputPromise
+                retObj[this.outputs[0].shortName] = outputPromise.catch(function(e){
+                    that.set({sufficient: "error"})
+                    // console.log("caught an error on " + that.get('componentPrettyName'))
+                });
             } else {
                 // Otherwise, we can assume python is returning a tuple, which gets assigned to the variable above.
                 // In which case, the tuple's values can each be referenced by downstream functions via their indexes
                 // This means that the outputs of a component are assumed to match (in their order) the positions of
                 // outputs from the corresponding python function
                 _.each(this.outputs,function (o,idx) {
-                    retObj[o.shortName] = outputPromise.then(function (varName) {
+                    retObj[o.shortName] = outputPromise
+                    .catch(function(e){
+                        that.set({sufficient: "error"});
+                        // console.log("caught an error on " + that.get('componentPrettyName'))
+                    }).then(function (varName) {
                         return new Promise(function (resolve) {
                             return resolve(varName + "[" + idx + "]")
                         })
-                    });
+                    })
+
                 });
             }
 
