@@ -59,7 +59,7 @@ define([
             this.currentProject = null;
             _.bindAll(this,
                 "newProject",
-                "loadParseProject",
+                // "loadParseProject",
                 "clearWorkspace",
                 "loadJSON",
                 "initializePulses"
@@ -113,9 +113,9 @@ define([
             }
 
             this.currentProject = new OrchestraProject();
-            require(["dataFlow/projectLoader"],function(Loader){
-                Loader.clearCurrentProject();
-            });
+            // require(["dataFlow/projectLoader"],function(Loader){
+            //     Loader.clearCurrentProject();
+            // });
 
             this.workspace.render(); // render workspace once to remove wires from view
         };
@@ -136,51 +136,49 @@ define([
             }
         };
 
-        App.prototype.loadParseProject = function(projectId){
-            this.clearWorkspace();
-            var that = this;
-            require(["dataFlow/projectLoader"],function(Loader){
-                // no reference necessary. The slider will clean itself up.
-                Loader.loadProjectFromParse(projectId)
-                    .then(function(proj){
-                        console.log('\n\nLOADED PROJECT FROM PARSE');
-                        console.warn("VIEWER USED TO BE INITIALIZED HERE");
-                        that.loadWorkspace(proj);
-                    })
-                    .fail(function(e){
-                        if (e && e.code === 100) {
-                            // Server is unavailable. This is a fatal error, but for right now let's just enter demo mode
-                            alert("Server Unavailable. Entering Demo Mode.");
-                            that.setupDemoMode();
-                        } else {
-                            alert("Unknown fatal error. See console for more info.");
-                            console.log("Error details while trying to load project from Parse Server:");
-                            console.log(e);
-                        }
-                    });
-            });
-        };
+        // App.prototype.loadParseProject = function(projectId){
+        //     this.clearWorkspace();
+        //     var that = this;
+        //     require(["dataFlow/projectLoader"],function(Loader){
+        //         // no reference necessary. The slider will clean itself up.
+        //         Loader.loadProjectFromParse(projectId)
+        //             .then(function(proj){
+        //                 console.log('\n\nLOADED PROJECT FROM PARSE');
+        //                 console.warn("VIEWER USED TO BE INITIALIZED HERE");
+        //                 that.loadWorkspace(proj);
+        //             })
+        //             .fail(function(e){
+        //                 if (e && e.code === 100) {
+        //                     // Server is unavailable. This is a fatal error, but for right now let's just enter demo mode
+        //                     alert("Server Unavailable. Entering Demo Mode.");
+        //                     that.setupDemoMode();
+        //                 } else {
+        //                     alert("Unknown fatal error. See console for more info.");
+        //                     console.log("Error details while trying to load project from Parse Server:");
+        //                     console.log(e);
+        //                 }
+        //             });
+        //     });
+        // };
 
-        App.prototype.loadJSONProjectUrl = function(url){
-            this.clearWorkspace();
-            var that = this;
-
-            require(["dataFlow/projectLoader"],function(Loader){
-                Loader.loadProjectFromUrl(url,function(proj){
-                    console.log('\n\nLOADED PROJECT FROM FILE');
-                    that.loadWorkspace(proj);
-                });
-            });
-        };
+        // App.prototype.loadJSONProjectUrl = function(url){
+        //     this.clearWorkspace();
+        //     var that = this;
+        //
+        //     require(["dataFlow/projectLoader"],function(Loader){
+        //         Loader.loadProjectFromUrl(url,function(proj){
+        //             console.log('\n\nLOADED PROJECT FROM FILE');
+        //             that.loadWorkspace(proj);
+        //         });
+        //     });
+        // };
 
         App.prototype.loadJSON = function(jsonData) {
             this.clearWorkspace();
             var that = this;
 
-            require(["dataFlow/projectLoader"],function(Loader){
-                Loader.loadProjectFromJson(jsonData,function(proj){
-                    that.loadWorkspace(proj);
-                });
+            require(["dataFlow/project"],function(Project){
+                that.loadWorkspace(new Project(jsonData));
             });
         }
 

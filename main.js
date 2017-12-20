@@ -57,7 +57,6 @@ require.config({
         jquery: 'lib/jquery-2.1.1.min',
         backbone: 'lib/backbone-min',
         "parse-lib": 'lib/parse-1.5.0.min',
-        parse: 'src/dataFlow/parseInitializer',
         underscore: 'lib/underscore-min',
         bootstrap3: 'lib/bootstrap.min',
         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
