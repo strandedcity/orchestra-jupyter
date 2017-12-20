@@ -7,7 +7,7 @@
     /////////////////////////
     //
     // TO RUN THE BUILD IN ONE COMMAND:
-    // r.js -o build.js && uglifyjs --compress --mangle --output dist/main.js -- dist/testOutput.js
+    // r.js -o build.js && uglifyjs --compress --mangle --output dist/main.js -- dist/testOutput.js && rm dist/testOutput.js
 
 
     // mainConfigFile: './appconfig.js',
