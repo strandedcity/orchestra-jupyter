@@ -7,13 +7,13 @@
     /////////////////////////
     //
     // TO RUN THE BUILD IN ONE COMMAND:
-    // r.js -o build.js && uglifyjs --compress --mangle --output dist/main.js -- dist/testOutput.js && rm dist/testOutput.js
+    // r.js -o build.js && uglifyjs --compress --mangle --output dist/orchestra.js -- dist/temp.js && rm dist/temp.js
 
 
     // mainConfigFile: './appconfig.js',
     baseUrl: '.',
     findNestedDependencies: true,
-    out: './dist/testOutput.js',
+    out: './dist/temp.js',
     name: "main",
     optimize: 'uglify',
     paths: {
@@ -29,7 +29,6 @@
         // UI
         viewer: 'src/viewer',
         threejs: 'src/viewer/three.wrapper',
-        threemin: 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
         SVGRenderer: 'src/viewer/SVGRenderer',
         Projector: 'src/viewer/Projector',
