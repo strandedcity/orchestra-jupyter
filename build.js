@@ -16,6 +16,11 @@
     out: './dist/temp.js',
     name: "main",
     optimize: 'uglify',
+    shim: {
+        'threemin': {
+            exports: 'THREE'
+        }
+    },
     paths: {
         // These libraries are already require()'d by Jupyter in reasonably compatible versions.
         // No need to build them into the project at this phase, though they are rightly required
@@ -29,6 +34,7 @@
         // UI
         viewer: 'src/viewer',
         threejs: 'src/viewer/three.wrapper',
+        threemin: 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
         SVGRenderer: 'src/viewer/SVGRenderer',
         Projector: 'src/viewer/Projector',

@@ -39,6 +39,9 @@ require.config({
         },
         'CSS3DRenderer': {
             deps: ['threejs']
+        },
+        'threemin': {
+            exports: 'THREE'
         }
     },
 
@@ -46,6 +49,7 @@ require.config({
         // UI
         viewer: 'src/viewer',
         threejs: 'src/viewer/three.wrapper',
+        threemin: 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
         SVGRenderer: 'src/viewer/SVGRenderer',
         Projector: 'src/viewer/Projector',
