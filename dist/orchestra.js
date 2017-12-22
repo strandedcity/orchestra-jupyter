@@ -15626,6 +15626,6 @@ console.log("BLAAAAH");
     };
 });
 
-require('orchestra');
+require(['orchestra']);
 
 console.log("AAAAAAA")
