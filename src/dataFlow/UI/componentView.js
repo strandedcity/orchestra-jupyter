@@ -5,8 +5,9 @@ define([
     "dataFlow/UI/inputOutputView",
     "underscore",
     "backbone",
+    "three",
     "dataFlow/dataTree"
-],function($, DataFlow, WS, ioView, _, Backbone, DataTree){
+],function($, DataFlow, WS, ioView, _, Backbone, THREE, DataTree){
     var INPUT_HEIGHT = 60;
 
     /* Almost all components will use the regular ol' component view. But as other view types evolve, they can be employed easily here */

@@ -1,4 +1,4 @@
-define(["threejs","OrbitControls"],function(){
+define(["three","OrbitControls"],function(){
     function ModelSpace(){
         this.width = window.innerWidth/2;
         this.height = window.innerHeight;

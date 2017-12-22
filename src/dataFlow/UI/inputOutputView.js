@@ -3,8 +3,8 @@ define([
     "dataFlow/UI/workspaceView",
     "underscore",
     "dataFlow/enums",
-    "threejs"
-],function(DataFlow, WS, _, ENUMS){
+    "three"
+],function(DataFlow, WS, _, ENUMS, THREE){
 
     /* Base class IOView */
     function IOView(ioModel,glObject,cssObject){

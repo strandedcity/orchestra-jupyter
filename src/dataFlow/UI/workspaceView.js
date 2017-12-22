@@ -10,12 +10,12 @@ define([
     "dataFlow/UI/contextMenuJupyter", // the context menu from orchestra3d is pretty CAD specific. Leaving it there in case I want to prioritize re-separation of the projects
     "dataFlow/enums",
     "dataFlow/UI/helpTooltips",
-    "threejs",
+    "three",
     "CSS3DRenderer",
     "OrbitControls",
     "underscore",
     "backbone"
-],function($,ContextMenu,ENUMS,HelpTooltips){
+],function($,ContextMenu,ENUMS,HelpTooltips,THREE){
 
     // Helpers for drag-and-drop scopes
     _.extend(THREE.CSS3DObject.prototype,Backbone.Events,{

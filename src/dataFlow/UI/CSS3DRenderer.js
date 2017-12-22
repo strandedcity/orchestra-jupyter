@@ -3,6 +3,9 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
+define('CSS3DRenderer',['three'],function(THREE){
+
+
 THREE.CSS3DObject = function ( element ) {
 
 	THREE.Object3D.call( this );
@@ -250,3 +253,6 @@ THREE.CSS3DRenderer = function () {
 	};
 
 };
+
+// close out AMD module def'n
+});

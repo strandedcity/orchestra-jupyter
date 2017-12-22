@@ -28,28 +28,28 @@ require.config({
         'bootstrap3-typeahead': {
             deps: ['bootstrap']
         },
-        'OrbitControls': {
-            deps: ['threejs']
-        },
-        'SVGRenderer': {
-            deps: ['threejs']
-        },
-        'Projector': {
-            deps: ['threejs']
-        },
-        'CSS3DRenderer': {
-            deps: ['threejs']
-        },
-        'threemin': {
-            exports: 'THREE'
-        }
+        // 'OrbitControls': {
+        //     deps: ['three']
+        // },
+        // 'SVGRenderer': {
+        //     deps: ['three']
+        // },
+        // 'Projector': {
+        //     deps: ['three']
+        // },
+        // 'CSS3DRenderer': {
+        //     deps: ['three']
+        // },
+        // 'threemin': {
+        //     exports: 'THREE'
+        // }
     },
 
     paths: {
         // UI
         viewer: 'src/viewer',
-        threejs: 'src/viewer/three.wrapper',
-        threemin: 'src/viewer/three.min',
+        // threejs: 'src/viewer/three.wrapper',
+        three: 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
         SVGRenderer: 'src/viewer/SVGRenderer',
         Projector: 'src/viewer/Projector',
