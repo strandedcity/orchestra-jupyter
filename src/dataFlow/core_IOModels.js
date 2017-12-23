@@ -56,7 +56,7 @@ define([
             }
         },
         replaceData: function(dataTree){
-            if (dataTree.constructor.name !== "DataTree") {
+            if (dataTree.objectType !== "DataTree") {
                 throw new Error("Attempt to replace Data Tree with something that's not a Data Tree.");
             }
             this.clearValues();

@@ -56,7 +56,7 @@ define([
                 });
                 Promise.all(dataAndNodes).then(function (values) {
                     _.each(values,function(val,index){
-                        if (val.constructor.name === "Node") {
+                        if (val.objectType === "Node") {
                             // textOutput += pathNodeTemplate({path: val.getPath()});
                         } else {
                             require(["dataFlow/UI/spreadsheetView"],function(SpreadsheetView){
@@ -75,6 +75,7 @@ define([
 
         // that.listenTo(that.component.getOutput("D"),"change",that.displayVals);
     }
+    SpreadsheetComponentView.prototype.objectType = "SpreadsheetComponentView";
 
     function PrintComponentView(component) {
         /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
@@ -98,7 +99,7 @@ define([
                 });
                 Promise.all(dataAndNodes).then(function (values) {
                     _.each(values,function(val,index){
-                        if (val.constructor.name === "Node") {
+                        if (val.objectType === "Node") {
                             textOutput += pathNodeTemplate({path: val.getPath()});
                         } else {
                             console.log(val);
@@ -137,6 +138,7 @@ define([
 
         that.listenTo(that.component.getOutput("D"),"change",that.displayVals);
     }
+    PrintComponentView.prototype.objectType = "PrintComponentView";
 
     // A component that visualizes charts
     function MatPlotLibComponentView(component) {
@@ -158,7 +160,7 @@ define([
                 });
                 Promise.all(dataAndNodes).then(function (values) {
                     _.each(values,function(val,index){
-                        if (val.constructor.name === "Node") {
+                        if (val.objectType === "Node") {
                             textOutput += pathNodeTemplate({path: val.getPath()});
                         } else {
                             // Should be an array of PNG-base64 encoded images
@@ -198,6 +200,7 @@ define([
 
         that.listenTo(that.component.outputs[0],"change",that.displayVals);
     }
+    MatPlotLibComponentView.prototype.objectType = "MatPlotLibComponentView";
 
     function BooleanToggleComponentView(component){
         /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
@@ -223,6 +226,7 @@ define([
 
         this.listenTo(this.component.getOutput("B"),"change",this.displayVals);
     }
+    BooleanToggleComponentView.prototype.objectType = "BooleanToggleComponentView";
 
     function SliderComponentView(component) {
         /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
@@ -259,7 +263,8 @@ define([
         _.bindAll(this,"click","sliderUpdateValue");
 
         this.init(component);
-     }
+    }
+    SliderComponentView.prototype.objectType = "SliderComponentView";
 
     ///////////////////////
     // BEGIN GENERIC COMPONENTVIEW METHODS
@@ -484,6 +489,8 @@ define([
 
         return mesh;
     };
+
+    ComponentView.prototype.objectType = "ComponentView";
 
     return ComponentViewSelector;
 });

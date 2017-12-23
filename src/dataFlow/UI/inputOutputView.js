@@ -110,6 +110,8 @@ define([
         this.listenTo(this.model,"disconnectedOutput",this.disconnectFromOutput);
     }
 
+    InputView.prototype.objectType = "InputView"; // protects name from optimizer in build process
+
     InputView.prototype.remove = function(){
         // input-specific cleanup
         var that = this;
@@ -195,6 +197,8 @@ define([
         // output-specific cleanup
         this._remove(); // IOView Superclass
     };
+
+    OutputView.prototype.objectType = "OutputView"; // protects name from optimizer in build process
 
     return {
         InputView: InputView,

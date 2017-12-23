@@ -16,6 +16,8 @@ define([
 
     DataTree.prototype = Object.create(Node.prototype);
     DataTree.prototype.constructor = DataTree;
+    DataTree.prototype.objectType = "DataTree";
+
 
     DataTree.prototype.recurseTree = function(funcOfDataAndNode){  // iterator = function(data[,node])
         // walks the tree, calling iterator for each node. Iterator is a function that takes DATA (an array) and an optional PATH string.
@@ -281,6 +283,8 @@ define([
         this.parent = parent;
         //this.pathId = parent.getPathForChildNode(this); // node won't be added yet. The parent must assign this property
     };
+
+    Node.prototype.objectType = "Node";
 
     Node.prototype.isRoot = function () {
         return _.isUndefined(this.parent);
