@@ -28,18 +28,18 @@ require.config({
         'bootstrap3-typeahead': {
             deps: ['bootstrap']
         },
-        // 'OrbitControls': {
-        //     deps: ['three']
-        // },
-        // 'SVGRenderer': {
-        //     deps: ['three']
-        // },
-        // 'Projector': {
-        //     deps: ['three']
-        // },
-        // 'CSS3DRenderer': {
-        //     deps: ['three']
-        // },
+        'OrbitControls': {
+            deps: ['three']
+        },
+        'SVGRenderer': {
+            deps: ['three']
+        },
+        'Projector': {
+            deps: ['three']
+        },
+        'CSS3DRenderer': {
+            deps: ['three']
+        },
         // 'threemin': {
         //     exports: 'THREE'
         // }
@@ -73,13 +73,16 @@ require.config({
 
         // geometry & dataflow
         dataFlow: 'src/dataFlow',
-        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer'
+        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer',
+
+        // Application
+        orchestraApp: 'app'
     }
 });
 
 define([
     'base/js/namespace',
-    './app',
+    'orchestraApp',
     'jquery',
     'base/js/dialog',
 ], function(

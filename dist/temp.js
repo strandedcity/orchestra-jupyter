@@ -15084,7 +15084,7 @@ define('dataFlow/project',["underscore","backbone","dataFlow/dataFlow_loader"],f
 define('text!src/css/orchestra.css',[],function () { return '\na {\n    cursor: pointer;\n}\nbody {\n    margin: 0px;\n    overflow: hidden;\n}\ncanvas {\n    position:  absolute;\n    top: 0px;\n    left: 0px;\n    opacity: 0.9;\n}\n.TOP {\n    position: absolute;\n    z-index: 101;\n    /*background-color: rgba(255,255,255,0.2);*/\n    top: 0px;\n    left: 0px;\n}\n/*  TODO: These styles are needed for orchestra3d, but conflict in Jupyter-Orchestra (they make Jupyter\'s nav buttons appear above its dropdown menus, such as file, edit, etc.\n    These should be moved to a separate style sheet in orchestra, so that bootstrap conflicts can be avoided.\n */\n/*.navbar {*/\n    /*z-index: 102;*/\n    /*border-radius: 0px !important;*/\n/*}*/\n/*.navbar-project-title {*/\n    /*!*text-transform: capitalize;*!*/\n    /*float: left;*/\n    /*height: 50px;*/\n    /*padding: 15px 15px;*/\n    /*font-size: 17px;*/\n    /*line-height: 20px;*/\n    /*font-style: italic;*/\n/*}*/\n.titleChangerWidget {display: none;}\n#titleChanger {width: 400px;}\n\n/* Main Component Styling */\ndiv.componentLabel {\n    border: 1px solid black;\n    border-radius: 60px;\n    height: 80px;\n    width: 240px;\n    text-align: center;\n    font-size: 30px;\n    line-height: 80px;\n    text-transform: capitalize;\n    cursor: pointer;\n\n    -webkit-touch-callout: none;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n\n/* Print Component Styling */\ndiv.draggable.PrintComponent {\n    /*left: 240px;*/\n}\ndiv.draggable.PrintComponent.IO {\n    /*left: -240px;*/\n}\ndiv.printComponentTextArea {\n    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n    border: 1px solid black;\n    border-radius: 5px;\n    height: 320px;\n    width: 700px;\n    text-align: left;\n    font-size: 15px;\n    padding: 0;\n    line-height: 30px;\n    cursor: pointer;\n\n    -webkit-touch-callout: none;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n\n    /*margin-left: 480px;*/\n    background-color: whitesmoke;\n    box-shadow: 9px 9px 19px 0px #444;\n    overflow-y: scroll;\n}\ndiv.printComponentTextArea div {\n    padding: 0 15px;\n}\n\n\n\ndiv.printComponentTextArea .pathNodeTitle {\n    background-color: #999;\n}\n\ndiv.printComponentTextArea div.dataRow  {\n    white-space: pre;\n}\ndiv.printComponentTextArea div.dataRow:nth-child(odd)  {\n    background-color: white;\n}\ndiv.printComponentTextArea div.dataRow:nth-child(even)  {\n    background-color: #dedede;\n}\n\n/*\nSupport for mixing status colors for separate properties: Preview, Sufficiency/Error, Selection\nhttps://css-tricks.com/tinted-images-multiple-backgrounds/\nPreview / Not = grey or white solid alpha image\nSufficiency / Error = clear, orange, or red transparent .TOP.workspaceOverlay\nSelection = Thick green border\n*/\n\ndiv.componentLabel.insufficient {background-color: #ffca3d;}\ndiv.componentLabel.sufficient {background-color: #e8e8e8;}\ndiv.componentLabel.error {background-color: orangered;}\n\n/*div.componentLabel.previewOff.insufficient {background-color: lightgray;}*/\ndiv.componentLabel.previewOff.sufficient {background-color:#999999;}\ndiv.componentLabel.previewOff.error {background-color:orangered}\n\ndiv.IO {\n    box-sizing: content-box;\n    position: absolute;\n    display: block;\n    background-color: #ff870c;\n    top: 0px;\n    left: 0px;\n    height: 50px;\n    width: 50px;\n    border-radius: 50px;\n\n    color: white;\n    font-size: 35px;\n    line-height: 50px;\n    text-align: center;\n    font-weight: bold;\n\n    -webkit-user-select: none;       \n    -moz-user-select: none; \n    -ms-user-select: none; \n    -o-user-select: none;\n    user-select: none;\n}\ndiv.IO:hover {\n    box-sizing: content-box;\n    border: 5px solid orange;\n    cursor: pointer;\n}\ndiv.IO.glHover {\n    background-color: red;\n}\n\n.glHover input {\n    border: 10px solid red;\n}\n.dragging {\n    pointer-events: none;\n}\n\n/* Help Tooltip / Popovers */\n.io_tooltip {\n    margin: -9px -14px;\n    list-style: none;\n    padding-left: 0;\n}\n.io_tooltip .io_description {\n    font-style: italic;\n    margin: 9px;\n    display: inline-block;\n    font-size: 17px;\n    font-weight: bold;\n}\n.io_tooltip .io_isRequired {\n    width: 80px;\n    display: inline-block;\n    margin: 0px 9px;\n    color: #999;\n    font-size: 11px;\n    vertical-align: middle;\n}\n.io_tooltip li {\n    max-width: 180px;\n    display: block;\n}\n.io_tooltip_field_title {\n    width: 80px;\n    line-height: 16px;\n    display: inline-block;\n    margin: 9px;\n    color: #999;\n    font-size: 11px;\n    vertical-align: middle;\n}\n.io_tooltip_field_value {\n    color: #333;\n    font-weight: bold;\n    font-size: 16px;\n    width: 60px;\n    text-align: left;\n    line-height: 16px;\n    vertical-align: middle;\n    display: inline-block;\n}\n.cmpt_tooltip_title_modulename {\n    font-weight: normal;\n    color: #999;\n    font-size: 10px;\n}\n.cmpt_error_line {\n    color: red;\n    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n    width: 600px;\n    font-size: 12px;\n}\n.cmpt_error_line .err_type {\n    width: 75px;\n    text-align: left;\n    font-weight: bold;\n}\n.cmpt_error_line .err_msg {\n    text-align: left;\n    width: 525px;\n}\n.cmpt_tooltip .cmpt_description {\n    font-weight: normal;\n    font-size: 20px;\n    margin-bottom: 10px;\n}\n.cmpt_tooltip .cmpt_io_container {\n\n}\n.cmpt_tooltip .cmpt_io_container .cmpt_io_title{\n    font-weight: bold;\n    color: #333;\n    margin-left: 50px;\n}\n.cmpt_tooltip .cmpt_io_container .cmpt_io{\n    margin-left: 70px;\n    display: block;\n}\n.cmpt_tooltip .cmpt_io_container .cmpt_io .cmpt_io_name {\n    font-weight: bold;\n    font-size: 12px;\n    vertical-align: top;\n}\n.cmpt_tooltip .cmpt_io_container .cmpt_io .cmpt_io_details {\n    color: #666;\n    font-size: 12px;\n    max-width: 250px;\n    display: inline-block;\n    margin-left: 8px;\n}\n.cmpt_tooltip  .cmpt_io_required_legend {\n    font-size: 11px;\n    color: #999;\n}\n\n\n\n\n/* Slider custom overrides. Can be copied to slider\'s CSS eventually */\n.slider {\n    z-index: 102; /* Make sure the tooltip comes above bootstrap nav items */\n    margin-left: -100px;\n    margin-top: -50px;\n}\n.slider .tooltip {\n    background-color: transparent;\n}\n.TOP.workspaceOverlay {\n    z-index: 101;\n    background-color: rgba(0,0,0,0.5);\n    width: 100%;\n    height: 100%;\n    border: none;\n}\n\n/* Context menu stuff */\n.context-menu {\n    position: absolute;\n    display: none;\n}\n.context-menu .dropdown-menu {\n    top: 0;\n    display: block;\n}\n.context-menu .icongutter {\n    width: 30px;\n    display: inline-block;\n}\n.context-menu input {\n    border-radius: 17px;\n    border: 1px solid lightgray;\n    padding-left: 23px;\n}\n.context-menu input:focus {\n    outline-width: 0;\n}\n.context-menu .comp_Name {\n    height: 40px;\n    vertical-align: middle;\n    line-height: 40px;\n    margin-left: 20px;\n    font-weight: bold;\n    font-style: italic;\n}\n\n/* Roaming component searchbar / typeahead */\n.mobileComponentSearchInput {\n    z-index: 102;\n    position: absolute;\n    display: block;\n    width: 310px;\n    line-height: 30px;\n    padding: 4px 19px;\n    border-radius: 10px;\n    outline: none;\n    border: 1px solid #CCC;\n    font-size: 20px;\n    font-weight: bold;\n}\n';});
 
 
-define('app',[
+define('orchestraApp',[
         "jquery",
         "underscore",
         "backbone",
@@ -15387,18 +15387,18 @@ require.config({
         'bootstrap3-typeahead': {
             deps: ['bootstrap']
         },
-        // 'OrbitControls': {
-        //     deps: ['three']
-        // },
-        // 'SVGRenderer': {
-        //     deps: ['three']
-        // },
-        // 'Projector': {
-        //     deps: ['three']
-        // },
-        // 'CSS3DRenderer': {
-        //     deps: ['three']
-        // },
+        'OrbitControls': {
+            deps: ['three']
+        },
+        'SVGRenderer': {
+            deps: ['three']
+        },
+        'Projector': {
+            deps: ['three']
+        },
+        'CSS3DRenderer': {
+            deps: ['three']
+        },
         // 'threemin': {
         //     exports: 'THREE'
         // }
@@ -15432,13 +15432,16 @@ require.config({
 
         // geometry & dataflow
         dataFlow: 'src/dataFlow',
-        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer'
+        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer',
+
+        // Application
+        orchestraApp: 'app'
     }
 });
 
-define('orchestra',[
+define('main',[
     'base/js/namespace',
-    './app',
+    'orchestraApp',
     'jquery',
     'base/js/dialog',
 ], function(
@@ -15620,12 +15623,9 @@ define('orchestra',[
         // });
 
     }
-console.log("BLAAAAH");
+
     return {
         load_ipython_extension: load_orchestra_toolbar_button
     };
 });
 
-require(['orchestra']);
-
-console.log("AAAAAAA")

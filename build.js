@@ -7,7 +7,7 @@
     /////////////////////////
     //
     // TO RUN THE BUILD IN ONE COMMAND:
-    // r.js -o build.js && uglifyjs --compress --mangle --output dist/orchestra.js -- dist/temp.js && rm dist/temp.js
+    // r.js -o build.js && uglifyjs --compress --mangle --output dist/main.js -- dist/temp.js && rm dist/temp.js
 
 
     // mainConfigFile: './appconfig.js',
@@ -59,6 +59,9 @@
 
         // geometry & dataflow
         dataFlow: 'src/dataFlow',
-        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer'
+        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer',
+
+        // Application
+        orchestraApp: 'app'
     }
 })
