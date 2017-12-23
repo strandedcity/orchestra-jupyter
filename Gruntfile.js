@@ -7,26 +7,12 @@ module.exports = function(grunt) {
             build: {
                 options: {
                     // Somewhere there's some ES6 code that prevents requirejs from optimizing, because it's old.
-                    // But I can take the require.js output and just run this on it:
-                    // uglifyjs --compress --mangle --output compressed.js -- testOutput.js
-                    // reduces size from 1.8 to 1.4mb
-                    //
-                    /////////////////////////
-                    //
-                    // TO RUN THE BUILD IN ONE COMMAND:
-                    // r.js -o build.js && uglifyjs --compress --mangle --output dist/main.js -- dist/temp.js && rm dist/temp.js
-
-                    // mainConfigFile: './appconfig.js',
+                    // So we 'optimize -> none' here, then uglify separately below
                     baseUrl: '.',
                     findNestedDependencies: true,
                     out: './dist/temp.js',
                     name: "main",
                     optimize: 'none', // ES2015 syntax causes problems for the optimizer, so I optimize in a separate step
-                    // shim: {
-                    //     'threemin': {
-                    //         exports: 'THREE'
-                    //     }
-                    // },
                     paths: {
                         // These libraries are already require()'d by Jupyter in reasonably compatible versions.
                         // No need to build them into the project at this phase, though they are rightly required
@@ -39,7 +25,6 @@ module.exports = function(grunt) {
 
                         // UI
                         viewer: 'src/viewer',
-                        // threejs: 'src/viewer/three.wrapper',
                         three: 'src/viewer/three.min',
                         OrbitControls: 'src/viewer/OrbitControls',
                         SVGRenderer: 'src/viewer/SVGRenderer',
