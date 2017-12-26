@@ -22,10 +22,12 @@ module.exports = function(grunt) {
                         bootstrap: 'empty:',
                         'base/js/namespace': 'empty:',
                         'base/js/dialog': 'empty:',
+                        Handsontable: 'empty:',
+                        three: 'empty:',
 
                         // UI
                         viewer: 'src/viewer',
-                        three: 'src/viewer/three.min',
+                        // three: 'src/viewer/three.min',
                         OrbitControls: 'src/viewer/OrbitControls',
                         SVGRenderer: 'src/viewer/SVGRenderer',
                         Projector: 'src/viewer/Projector',
@@ -41,7 +43,7 @@ module.exports = function(grunt) {
                         // bootstrap3: 'lib/bootstrap.min', // 'empty:', see above
                         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
                         'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
-                        Handsontable: 'lib/handsontable.min',
+                        // Handsontable: 'lib/handsontable.min',
                         HandsontableWrapper: 'lib/handsontable.wrapper',
                         numbro: 'lib/numbro',
                         pikaday: 'lib/pikaday',

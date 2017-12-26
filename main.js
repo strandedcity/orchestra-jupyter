@@ -49,7 +49,7 @@ require.config({
         // UI
         viewer: 'src/viewer',
         // threejs: 'src/viewer/three.wrapper',
-        three: 'src/viewer/three.min',
+        three: 'https://cdn.rawgit.com/strandedcity/orchestra-jupyter/master/src/viewer/three.min',// 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
         SVGRenderer: 'src/viewer/SVGRenderer',
         Projector: 'src/viewer/Projector',
@@ -64,7 +64,7 @@ require.config({
         bootstrap3: 'lib/bootstrap.min',
         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
         'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
-        Handsontable: 'lib/handsontable.min',
+        Handsontable: 'https://cdn.rawgit.com/strandedcity/orchestra-jupyter/master/lib/handsontable.min',//'lib/handsontable.min',
         HandsontableWrapper: 'lib/handsontable.wrapper',
         numbro: 'lib/numbro',
         pikaday: 'lib/pikaday',
