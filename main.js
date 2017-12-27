@@ -27,22 +27,7 @@ require.config({
         },
         'bootstrap3-typeahead': {
             deps: ['bootstrap']
-        },
-        'OrbitControls': {
-            deps: ['three']
-        },
-        'SVGRenderer': {
-            deps: ['three']
-        },
-        'Projector': {
-            deps: ['three']
-        },
-        'CSS3DRenderer': {
-            deps: ['three']
-        },
-        // 'threemin': {
-        //     exports: 'THREE'
-        // }
+        }
     },
 
     paths: {
@@ -50,10 +35,8 @@ require.config({
         viewer: 'src/viewer',
         // threejs: 'src/viewer/three.wrapper',
         three: 'https://cdn.rawgit.com/strandedcity/orchestra-jupyter/master/src/viewer/three.min',// 'src/viewer/three.min',
-        OrbitControls: 'src/viewer/OrbitControls',
-        SVGRenderer: 'src/viewer/SVGRenderer',
-        Projector: 'src/viewer/Projector',
-        navbar: 'src/application/navbar',
+        OrbitControls: 'src/dataFlow/UI/OrbitControls',
+        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer',
         componentSearcher: 'src/application/componentSearcher',
 
         // general libraries
@@ -73,7 +56,6 @@ require.config({
 
         // geometry & dataflow
         dataFlow: 'src/dataFlow',
-        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer',
 
         // Application
         orchestraApp: 'app'

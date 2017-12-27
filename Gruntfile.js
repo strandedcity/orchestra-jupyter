@@ -29,9 +29,6 @@ module.exports = function(grunt) {
                         viewer: 'src/viewer',
                         // three: 'src/viewer/three.min',
                         OrbitControls: 'src/viewer/OrbitControls',
-                        SVGRenderer: 'src/viewer/SVGRenderer',
-                        Projector: 'src/viewer/Projector',
-                        navbar: 'src/application/navbar',
                         componentSearcher: 'src/application/componentSearcher',
 
                         // general libraries
