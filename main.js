@@ -26,7 +26,13 @@ require.config({
 
     paths: {
         // general libraries -- ALL MOVED TO 'libs' BUNDLE, AND CONFIGURED IN GRUNTFILE.JS
-        libs: ['dist/libraries'], // this is the OUTPUT of `grunt buildLibraries`. Use CDN first, so gzip happens, then try local
+        // In development, when adding dependencies, it might be better to reverse the order of these
+        // includes
+        libs: [
+            'https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries.js',   // anywhere, but can't be rebuilt easily
+            'dist/orchestra-libraries',                                                               // in development
+            '/nbextensions/orchestra-jupyter/orchestra-libraries'                                                                              // included as a separate jupyter extension
+        ],
         HandsontableWrapper: 'lib/handsontable.wrapper',
         text: 'lib/text', // so I can require() CSS. Must be available to the optimizer of the main package, so it needs to be here
 

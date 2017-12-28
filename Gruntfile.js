@@ -8,7 +8,7 @@ module.exports = function(grunt) {
                 options: {
                     baseUrl: '.',
                     findNestedDependencies: false,
-                    out: './dist/libraries.js',
+                    out: './dist/orchestra-libraries.js',
                     optimize: 'none',
                     paths: {
                         three: 'lib/three.min',
