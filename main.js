@@ -29,7 +29,7 @@ require.config({
         // In development, when adding dependencies, it might be better to reverse the order of these
         // includes
         libs: [
-            'https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries.js',   // anywhere, but can't be rebuilt easily
+            'https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries',   // anywhere, but can't be rebuilt easily
             'dist/orchestra-libraries',                                                               // in development
             '/nbextensions/orchestra-jupyter/orchestra-libraries'                                                                              // included as a separate jupyter extension
         ],
