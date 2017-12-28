@@ -4,60 +4,39 @@ require.config({
     baseUrl: '/nbextensions/orchestra-jupyter/',
     urlArgs: "bust=" + (new Date()).getTime(),
 
-    shim: {
-        'backbone': {
-            deps: ['underscore', 'jquery'],
-            exports: 'Backbone'
-        },
-        'parse-lib': {
-            deps: ['jquery'],
-            exports: 'Parse'
-        },
-        'underscore': {
-            exports: '_'
-        },
-        'jquery': {
-            exports: '$'
-        },
-        'bootstrap3': {
-            deps: ['jquery']
-        },
-        'bootstrap-slider': {
-            deps: ['bootstrap']
-        },
-        'bootstrap3-typeahead': {
-            deps: ['bootstrap']
-        }
+    // All third party libraries are built together so the dependencies can be separated.
+    // These are then loaded from a CDN, so their download can happen in parallel and to support gzip,
+    // which Jupyter doesn't. Additionally, I can create a separate "offline" installation package
+    // so that people who want to use the libraries without an internet connection can just install the 'offline' package
+    bundles: {
+        // Be sure to add libraries to the 'exclude' section in Gruntfile.js also,
+        // so they aren't built into the main bundle accidentally
+        "libs": [
+            'Handsontable',
+            'numbro',   // not used in Orchestra, but called out here so it could be. This is a Handsontable dependency
+            'pikaday',  // not used in Orchestra, but called out here so it could be. This is a Handsontable dependency
+            'moment',   // not used in Orchestra, but called out here so it could be. This is a Handsontable dependency
+            'three',
+            'backbone',
+            'underscore',
+            'bootstrap3-typeahead',
+            'bootstrap-slider'
+        ]
     },
 
     paths: {
-        // UI
-        viewer: 'src/viewer',
-        // threejs: 'src/viewer/three.wrapper',
-        three: 'https://cdn.rawgit.com/strandedcity/orchestra-jupyter/master/src/viewer/three.min',// 'src/viewer/three.min',
+        // general libraries -- ALL MOVED TO 'libs' BUNDLE, AND CONFIGURED IN GRUNTFILE.JS
+        libs: ['dist/libraries'], // this is the OUTPUT of `grunt buildLibraries`. Use CDN first, so gzip happens, then try local
+        HandsontableWrapper: 'lib/handsontable.wrapper',
+        text: 'lib/text', // so I can require() CSS. Must be available to the optimizer of the main package, so it needs to be here
+
+        // Customized UI Components (un-customized ones are bundled in libraries)
         OrbitControls: 'src/dataFlow/UI/OrbitControls',
         CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer',
         componentSearcher: 'src/application/componentSearcher',
 
-        // general libraries
-        jquery: 'lib/jquery-2.1.1.min',
-        backbone: 'lib/backbone-min',
-        "parse-lib": 'lib/parse-1.5.0.min',
-        underscore: 'lib/underscore-min',
-        bootstrap3: 'lib/bootstrap.min',
-        'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
-        'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
-        Handsontable: 'https://cdn.rawgit.com/strandedcity/orchestra-jupyter/master/lib/handsontable.min',//'lib/handsontable.min',
-        HandsontableWrapper: 'lib/handsontable.wrapper',
-        numbro: 'lib/numbro',
-        pikaday: 'lib/pikaday',
-        moment: 'lib/moment',
-        text: 'lib/text',
-
-        // geometry & dataflow
-        dataFlow: 'src/dataFlow',
-
         // Application
+        dataFlow: 'src/dataFlow',
         orchestraApp: 'app'
     }
 });
