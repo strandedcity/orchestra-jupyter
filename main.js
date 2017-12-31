@@ -67,56 +67,45 @@ define([
         '/nbextensions/orchestra-jupyter/dist/orchestra-libraries',                             // Works in development
         '/nbextensions/orchestra-libraries'                                                     // Installed as a separate extension so Orchestra can be used offline, with no internet connection
     ];
-    checkLibPath(0);
 
-    let orchestraResolvedState = "RESOLVING"; // changes to "RESOLVING" then "RESOLVED" or "ERROR"
-    function checkLibPath( idx ) {
+    const getOrchestraObject = new Promise(function (resolve,reject) {
+        checkLibPath(0,resolve,reject);
+    });
+
+    // must catch errors right away, because otherwise there's an uncaught promise if the user doesn't click the button before dependencies fail to resolve.
+    getOrchestraObject
+        .catch(function(err){
+            console.error(err.message);
+        });
+
+    function checkLibPath( idx, resolve, reject ) {
         var jsFile = possibleLibPaths[idx];
         $.ajax({
             url: jsFile + ".js",
             type: "HEAD",
-            success: function(data,textStatus,xhr){ // 200s only
+            success: function(){ // 200s only
                 // found the library dependencies!
                 requireConfig.paths.libs = jsFile;
                 requireConfigFunction(requireConfig);
 
-                orchestraResolvedState = "RESOLVED";
-
                 // Precache Some things.... Precache Handsontable so that the big dependency is ready to go, even in development
+                console.log("Found Orchestra Library Dependencies at " + jsFile + ".js");
                 require(['HandsontableWrapper','orchestraApp'],function(HandsonTable, OrchestraApplication){
-                    /* Nothing to do here... */
+                    resolve(OrchestraApplication);
+                },function(){
+                    // Require error
+                    reject({message: "Error Loading Orchestra Application Files."});
                 })
             },
-            error: function(xhr){ // we'll see 404s and 405s in here
+            error: function(){ // we'll see 404s and 405s in here
                 if (idx + 1 < possibleLibPaths.length) {
                     // try the next one
-                    checkLibPath(idx+1);
+                    checkLibPath(idx+1, resolve, reject);
                 } else {
                     // all paths have been attempted, and failed.
-                    orchestraResolvedState = "ERROR";
+                    reject({message: "Could not resolve Orchestra's Library Dependencies."});
                 }
             }
-        })
-    }
-
-    function getResolvedState(){
-        return orchestraResolvedState;
-    }
-    function getOrchestraObject(){
-        // Polls for Orchestra's dependencies to resolve. It resolves with an orchestra object, or an error
-        return new Promise(function(resolve,reject){
-            var interval = setInterval(function(){
-                const resState = getResolvedState();
-                if (resState === "ERROR") {
-                    clearInterval(interval);
-                    reject({message: "Orchestra was unable to resolve its dependencies. Please check your internet connection, or install the orchestra-libraries notebook extension to avoid this error in the future."});
-                } else if (resState === "RESOLVED"){
-                    clearInterval(interval);
-                    require(['orchestraApp'],function(OrchestraApplication){
-                        resolve(OrchestraApplication);
-                    })
-                }
-            },100);
         })
     }
 
@@ -149,9 +138,8 @@ define([
         disableKeyboard();
 
         // Instantiate the app, load the orchestra project that's in memory
-        getOrchestraObject()
+        getOrchestraObject
             .then(function(OrchestraApplication){
-
                 var orchestra_application = new OrchestraApplication(Jupyter);
                 orchestra_application.loadJSON(cell.metadata[metadata_key]);
                 cell['orchestra_application'] = orchestra_application;
@@ -185,9 +173,6 @@ define([
                         closeButton.remove();
                     });
                 })
-            })
-            .catch(function(err){
-                console.error(err);
             });
     }
 
