@@ -22,7 +22,7 @@ module.exports = function(grunt) {
 
                         // UI Helpers
                         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
-                        'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
+                        //'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider // commenting out 12/30/17 because this is broken anyways
 
                         // These libraries inherit from Jupyter, but would be required in any other context
                         jquery: "empty:",       // jquery: 'lib/jquery-2.1.1.min',
@@ -157,7 +157,7 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['clean:pre','requirejs:buildLibraries','requirejs:build','replace','uglify','clean:post']);
 
     // Run using 'grunt fastbuild' on the CLI:
-    grunt.registerTask('fastbuild', ['clean:pre','requirejs:build','replace','copy','clean:post']);
+    grunt.registerTask('buildOrchestra', ['clean:pre','requirejs:build','replace','uglify','copy','clean:post']);
 
     grunt.registerTask('buildLibraries', ['clean:pre','requirejs:buildLibraries'])
 
