@@ -24,7 +24,7 @@ Expect to see this output:
 ```
 
 And you're done! The next time you load a Jupyter Notebook, you'll have this icon available:
-******
+![image](https://user-images.githubusercontent.com/1693906/34459711-f5342122-edac-11e7-8f88-de873856b5a9.png)
 
 Click it, and you're off to the races.
 
