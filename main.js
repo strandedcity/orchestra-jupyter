@@ -1,5 +1,5 @@
-// This config is the same as appconfig.js... but I cannot get it to work loading app config in any other way than directly in this file
-require.config({
+const requireConfigFunction = require.config;
+const requireConfig = {
     // cache busting during development:
     baseUrl: '/nbextensions/orchestra-jupyter/',
     urlArgs: "bust=" + (new Date()).getTime(),
@@ -28,11 +28,7 @@ require.config({
         // general libraries -- ALL MOVED TO 'libs' BUNDLE, AND CONFIGURED IN GRUNTFILE.JS
         // In development, when adding dependencies, it might be better to reverse the order of these
         // includes
-        libs: [
-            'https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries',   // anywhere, but can't be rebuilt easily
-            'dist/orchestra-libraries',                                                               // in development
-            '/nbextensions/orchestra-jupyter/orchestra-libraries'                                                                              // included as a separate jupyter extension
-        ],
+        libs: "", // THIS IS FILLED IN AFTER A VALID PATH FOR LIBRARIES IS FOUND, BEFORE REQUIRE.CONFIG() IS CALLED
         HandsontableWrapper: 'lib/handsontable.wrapper',
         text: 'lib/text', // so I can require() CSS. Must be available to the optimizer of the main package, so it needs to be here
 
@@ -45,19 +41,84 @@ require.config({
         dataFlow: 'src/dataFlow',
         orchestraApp: 'app'
     }
-});
+};
 
 define([
     'base/js/namespace',
-    'orchestraApp',
     'jquery',
     'base/js/dialog',
+    'require'
 ], function(
     Jupyter,
-    OrchestraApplication,
     $,
-    dialog
+    dialog,
+    require
 ) {
+
+    // 3rd party libraries are grouped as a separate bundle to shrink build time and enable
+    // gzip over the wire, which Jupyter doesn't. The libraries may need to be loaded from different
+    // locations, depending on the context. Normal users with internet access will prefer to load libraries
+    // from github. Orchestra developers will load from their own "dist" directory. Normal users without
+    // internet can attempt to load from a separately installed Jupyter extesion created just for the libraries.
+    // So the first task is to choose an available copy of the libraries, then set it in require.config()
+    // and proceed to load Orchestra.
+    const possibleLibPaths = [
+        'https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries',    // gzipped, but cached. Versions will eventually need checking for compatibility
+        '/nbextensions/orchestra-jupyter/dist/orchestra-libraries',                             // Works in development
+        '/nbextensions/orchestra-libraries'                                                     // Installed as a separate extension so Orchestra can be used offline, with no internet connection
+    ];
+    checkLibPath(0);
+
+    let orchestraResolvedState = "RESOLVING"; // changes to "RESOLVING" then "RESOLVED" or "ERROR"
+    function checkLibPath( idx ) {
+        var jsFile = possibleLibPaths[idx];
+        $.ajax({
+            url: jsFile + ".js",
+            type: "HEAD",
+            success: function(data,textStatus,xhr){ // 200s only
+                // found the library dependencies!
+                requireConfig.paths.libs = jsFile;
+                requireConfigFunction(requireConfig);
+
+                orchestraResolvedState = "RESOLVED";
+
+                // Precache Some things.... Precache Handsontable so that the big dependency is ready to go, even in development
+                require(['HandsontableWrapper','orchestraApp'],function(HandsonTable, OrchestraApplication){
+                    /* Nothing to do here... */
+                })
+            },
+            error: function(xhr){ // we'll see 404s and 405s in here
+                if (idx + 1 < possibleLibPaths.length) {
+                    // try the next one
+                    checkLibPath(idx+1);
+                } else {
+                    // all paths have been attempted, and failed.
+                    orchestraResolvedState = "ERROR";
+                }
+            }
+        })
+    }
+
+    function getResolvedState(){
+        return orchestraResolvedState;
+    }
+    function getOrchestraObject(){
+        // Polls for Orchestra's dependencies to resolve. It resolves with an orchestra object, or an error
+        return new Promise(function(resolve,reject){
+            var interval = setInterval(function(){
+                const resState = getResolvedState();
+                if (resState === "ERROR") {
+                    clearInterval(interval);
+                    reject({message: "Orchestra was unable to resolve its dependencies. Please check your internet connection, or install the orchestra-libraries notebook extension to avoid this error in the future."});
+                } else if (resState === "RESOLVED"){
+                    clearInterval(interval);
+                    require(['orchestraApp'],function(OrchestraApplication){
+                        resolve(OrchestraApplication);
+                    })
+                }
+            },100);
+        })
+    }
 
     var ORCHESTRA_HEADS_UP_MESSAGE =
         "### This cell contains Orchestra Visual Flow Programming Project Data. \n"+
@@ -66,32 +127,6 @@ define([
         "###\n"+
         "### If You do not have the Orchestra VFP Extension Installed, please visit:\n"+
         '### https://OrchestraMachineLearning.com/install-jupyter-extension/\n';
-
-    // In the Jupyter context, it might be nice to expose all available variables defined thus far in the ipython notebook
-    // as a pre-populated component with a bunch of outputs.
-    // The list is easy to gather... dir() >> returns a list of them. Remove anything with underscore prefixes.
-
-    // Glue, so that components can calculate using python
-
-
-    // var CellToolbar = celltoolbar.CellToolbar;
-    // var toolbar_preset_name = 'Initialization Cell';
-    // var init_cell_ui_callback = CellToolbar.utils.checkbox_ui_generator(
-    //     toolbar_preset_name,
-    //     function setter (cell, value) {
-    //         if (value) {
-    //             cell.metadata.init_cell = true;
-    //         }
-    //         else {
-    //             delete cell.metadata.init_cell;
-    //         }
-    //     },
-    //     function getter (cell) {
-    //         // if init_cell is undefined, it'll be interpreted as false anyway
-    //         return cell.metadata.init_cell;
-    //     }
-    // );
-    // var callback_notebook_loaded = init_cell_ui_callback;
 
 
     var metadata_key = "orchestraData";
@@ -114,46 +149,47 @@ define([
         disableKeyboard();
 
         // Instantiate the app, load the orchestra project that's in memory
-        var orchestra_application = new OrchestraApplication(Jupyter);
-        orchestra_application.loadJSON(cell.metadata[metadata_key]);
-        cell['orchestra_application'] = orchestra_application;
+        getOrchestraObject()
+            .then(function(OrchestraApplication){
 
-        orchestra_application.on('change',function (projectData) {
-            cell.metadata[metadata_key] = projectData;
-        });
-        orchestra_application.on('closed',function (projectData) {
-            cell.metadata[metadata_key] = projectData;
-            enableKeyboard();
-        })
+                var orchestra_application = new OrchestraApplication(Jupyter);
+                orchestra_application.loadJSON(cell.metadata[metadata_key]);
+                cell['orchestra_application'] = orchestra_application;
 
-        // The "Close" button is in application no-man's land. Don't want to add it to Orchestra (which shouldn't know about its container)
-        // But don't want to add it here either.
-        // Since this file is the 'glue code', here it goes.
-        var closeButton = $('<button class="btn btn-large closeOrchestraButton" style="z-index:500;position: absolute;top: 10px;left: 10px;">Return to Jupyter</button>');
-        $('body').append(closeButton);
-        closeButton.on('click',function () {
-            var transcript = orchestra_application.getTranscript();
-            if (transcript.charAt(0) == "#") {
-                var spliced = transcript.split("\n");
-                spliced.splice(1, 0, ORCHESTRA_HEADS_UP_MESSAGE);
-                transcript = spliced.join('\n');
-            }
+                orchestra_application.on('change',function (projectData) {
+                    cell.metadata[metadata_key] = projectData;
+                });
+                orchestra_application.on('closed',function (projectData) {
+                    cell.metadata[metadata_key] = projectData;
+                    enableKeyboard();
+                })
+
+                // The "Close" button is in application no-man's land. Don't want to add it to Orchestra (which shouldn't know about its container)
+                // But don't want to add it here either.
+                // Since this file is the 'glue code', here it goes.
+                var closeButton = $('<button class="btn btn-large closeOrchestraButton" style="z-index:500;position: absolute;top: 10px;left: 10px;">Return to Jupyter</button>');
+                $('body').append(closeButton);
+                closeButton.on('click',function () {
+                    var transcript = orchestra_application.getTranscript();
+                    if (transcript.charAt(0) == "#") {
+                        var spliced = transcript.split("\n");
+                        spliced.splice(1, 0, ORCHESTRA_HEADS_UP_MESSAGE);
+                        transcript = spliced.join('\n');
+                    }
 
 
-            cell.code_mirror.setValue(transcript);
-            orchestra_application.close();
-            closeButton.off();
-            closeButton.hide(250,function () {
-                closeButton.remove();
+                    cell.code_mirror.setValue(transcript);
+                    orchestra_application.close();
+                    closeButton.off();
+                    closeButton.hide(250,function () {
+                        closeButton.remove();
+                    });
+                })
+            })
+            .catch(function(err){
+                console.error(err);
             });
-        })
     }
-
-    function precache(){
-        // Powers the excel-like value enterer
-        require(['HandsontableWrapper']);
-    }
-
 
     function load_orchestra_toolbar_button() {
         // register action
@@ -164,9 +200,6 @@ define([
             help: 'Orchestra Visual Flow Programming',
             help_index : 'orchestra',
             handler : function(options){
-                // Load assets that orchestra uses, but not right away
-                precache();
-
                 // The selected cell is either already an "orchestra"'d cell, or not.
                 // If yes, open orchestra + load project from cell metadata
                 // If no, open a new project and save it to the cell metadata
@@ -210,26 +243,6 @@ define([
 
         // add toolbar button
         Jupyter.toolbar.add_buttons_group([action_full_name]);
-
-        // // register celltoolbar presets if they haven't been already
-        // if (CellToolbar.list_presets().indexOf(toolbar_preset_name) < 0) {
-        //     // Register a callback to create a UI element for a cell toolbar.
-        //     CellToolbar.register_callback('init_cell.is_init_cell', init_cell_ui_callback, 'code');
-        //     // Register a preset of UI elements forming a cell toolbar.
-        //     CellToolbar.register_preset(toolbar_preset_name, ['init_cell.is_init_cell'], Jupyter.notebook);
-        // }
-        //
-        // // setup things to run on loading config/notebook
-        // Jupyter.notebook.config.loaded
-        //     .then(function () {
-        //         if (Jupyter.notebook._fully_loaded) {
-        //             callback_notebook_loaded();
-        //         }
-        //         events.on('notebook_loaded.Notebook', callback_notebook_loaded);
-        //     }).catch(function (reason) {
-        //     console.error(log_prefix, 'unhandled error:', reason);
-        // });
-
     }
 
     return {
