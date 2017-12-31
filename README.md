@@ -74,7 +74,7 @@ grunt buildLibraries
 
 ### License
 
-Please note the [license](./LICENSE) for Orchestra before you use or modify it. _Orchestra is free to use for non-commercial projects only, and modifications using Orchestra source may not be sold under any circumstances._ Commercial licenses of Orchestra can be purchased for a reasonable fee, and may be offered in exchange for contribution to the Orchestra project. Please visit https://orchestravisualprogramming.com for more information.
+Please note the [license](./LICENSE) for Orchestra before you use or modify it. Orchestra is Licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License.](https://creativecommons.org/licenses/by-nc/4.0/) _Orchestra is free to use for non-commercial projects only, and modifications using Orchestra source may not be sold under any circumstances._ Commercial licenses of Orchestra can be purchased for a reasonable fee, and may be offered in exchange for contribution to the Orchestra project. Please visit https://orchestravisualprogramming.com for more information.
 
 Orchestra makes use of several third-party libraries, all of which are open-source projects under the MIT License or similarly permissive open-source licenses that do not restrict usage or modification:
 
