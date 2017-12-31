@@ -90,56 +90,56 @@ define([
         "desc": "Generates a list of numbers. You can control the start of the list, the increment, and the number of values"
     });
 
-    components.SliderComponent = DataFlow.Component.extend({
-        initialize: function(opts){
-            //var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
-            var output = this.createIObjectsFromJSON([
-                {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Value"}
-            ], opts, "output");
-
-            /* S = start of series, N = step size, C = # of values in series */
-            var inputs = this.createIObjectsFromJSON([
-                {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Start"},
-                {shortName: "E", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "End"},
-                {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Integers"},
-                {shortName: "N", required:false, default: 0.5, type: DataFlow.OUTPUT_TYPES.NUMBER, invisible: true, desc: "Value"}
-            ], opts, "inputs");
-
-            var args = _.extend({
-                componentPrettyName: "Slider",
-                preview: false
-            },opts || {},{
-                inputs: inputs,
-                outputs: output
-            });
-            this.base_init(args);
-        },
-        storeUserData: function(val){
-            var tree = new DataTree();
-            tree.setDataAtPath([val],[0]);
-            this.getInput("N").assignPersistedData(tree);
-        },
-        recalculateTrees: function(){
-            // Value is chosen directly in the UI, not calculated from inputs. Value is assigned directly to
-            // "persistedData" on INPUT "N", then "recalculate" ensures that this value is actually inside the acceptable range
-            // before assigning to the OUTPUT "N".
-            var currVal = this.getInput("N").getFirstValueOrDefault();
-            var min = this.getInput("S").getFirstValueOrDefault(),
-                max = this.getInput("E").getFirstValueOrDefault(),
-                integers = this.getInput("I").getFirstValueOrDefault();
-            if (integers === true && Math.floor(currVal) != currVal) {
-                currVal = Math.floor(currVal);
-            }
-
-            if (currVal > max) currVal = max;
-            if (currVal < min) currVal = min;
-
-            this.getOutput("N").values.setDataAtPath([currVal],[0]);// assignValues([currVal],[0]);
-        }
-    },{
-        "label": "Slider",
-        "desc": "A convenient way to change numerical values on the fly. Shows a touch/mouse-enabled slider"
-    });
+    // components.SliderComponent = DataFlow.Component.extend({
+    //     initialize: function(opts){
+    //         //var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
+    //         var output = this.createIObjectsFromJSON([
+    //             {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Value"}
+    //         ], opts, "output");
+    //
+    //         /* S = start of series, N = step size, C = # of values in series */
+    //         var inputs = this.createIObjectsFromJSON([
+    //             {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Start"},
+    //             {shortName: "E", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "End"},
+    //             {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Integers"},
+    //             {shortName: "N", required:false, default: 0.5, type: DataFlow.OUTPUT_TYPES.NUMBER, invisible: true, desc: "Value"}
+    //         ], opts, "inputs");
+    //
+    //         var args = _.extend({
+    //             componentPrettyName: "Slider",
+    //             preview: false
+    //         },opts || {},{
+    //             inputs: inputs,
+    //             outputs: output
+    //         });
+    //         this.base_init(args);
+    //     },
+    //     storeUserData: function(val){
+    //         var tree = new DataTree();
+    //         tree.setDataAtPath([val],[0]);
+    //         this.getInput("N").assignPersistedData(tree);
+    //     },
+    //     recalculateTrees: function(){
+    //         // Value is chosen directly in the UI, not calculated from inputs. Value is assigned directly to
+    //         // "persistedData" on INPUT "N", then "recalculate" ensures that this value is actually inside the acceptable range
+    //         // before assigning to the OUTPUT "N".
+    //         var currVal = this.getInput("N").getFirstValueOrDefault();
+    //         var min = this.getInput("S").getFirstValueOrDefault(),
+    //             max = this.getInput("E").getFirstValueOrDefault(),
+    //             integers = this.getInput("I").getFirstValueOrDefault();
+    //         if (integers === true && Math.floor(currVal) != currVal) {
+    //             currVal = Math.floor(currVal);
+    //         }
+    //
+    //         if (currVal > max) currVal = max;
+    //         if (currVal < min) currVal = min;
+    //
+    //         this.getOutput("N").values.setDataAtPath([currVal],[0]);// assignValues([currVal],[0]);
+    //     }
+    // },{
+    //     "label": "Slider",
+    //     "desc": "A convenient way to change numerical values on the fly. Shows a touch/mouse-enabled slider"
+    // });
 
     return components;
 });

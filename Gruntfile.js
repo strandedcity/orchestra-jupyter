@@ -45,9 +45,9 @@ module.exports = function(grunt) {
                         'underscore': {
                             exports: '_'
                         },
-                        'bootstrap-slider': {
-                            deps: ['bootstrap']
-                        },
+                        // 'bootstrap-slider': {
+                        //     deps: ['bootstrap']
+                        // },
                         'bootstrap3-typeahead': {
                             deps: ['bootstrap']
                         }
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
                         'pikaday',
                         'numbro',
                         'bootstrap3-typeahead',
-                        'bootstrap-slider'
+                        // 'bootstrap-slider'
                     ],
                     fileExclusionRegExp: /src|dataFlow/
                 }
@@ -87,7 +87,7 @@ module.exports = function(grunt) {
                             'backbone',
                             'underscore',
                             'bootstrap3-typeahead',
-                            'bootstrap-slider'
+                            // 'bootstrap-slider'
                         ]
                     },
                     paths: {
@@ -144,6 +144,18 @@ module.exports = function(grunt) {
         clean: {
             pre: ['dist/*'],
             post: ['dist/temp.js']
+        },
+        usebanner: {
+            orchestraBuild: {
+                options: {
+                    position: 'top',
+                    banner: '/* Orchestra Visual Flow Programming | (c) 2017 Phil Seaton | https://github.com/strandedcity/orchestra-jupyter/blob/master/LICENSE.md */',
+                    linebreak: true
+                },
+                files: {
+                    src: [ 'dist/orchestra.js' ]
+                }
+            }
         }
     });
 
@@ -152,12 +164,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-banner');
 
     // Default task(s). Run using "grunt" without any parameters
-    grunt.registerTask('default', ['clean:pre','requirejs:buildLibraries','requirejs:build','replace','uglify','clean:post']);
+    grunt.registerTask('default', ['clean:pre','requirejs:buildLibraries','requirejs:build','replace','uglify','clean:post','usebanner:orchestraBuild']);
 
-    // Run using 'grunt fastbuild' on the CLI:
-    grunt.registerTask('buildOrchestra', ['clean:pre','requirejs:build','replace','uglify','copy','clean:post']);
+    // Run using 'grunt buildOrchestra' on the CLI:
+    grunt.registerTask('buildOrchestra', ['clean:pre','requirejs:build','replace','copy','uglify','clean:post','usebanner:orchestraBuild']);
 
     grunt.registerTask('buildLibraries', ['clean:pre','requirejs:buildLibraries'])
 

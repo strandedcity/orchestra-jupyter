@@ -16,9 +16,10 @@ define([
             throw new Error('ComponentView objects must be instantiated with the DataFlow.Component which they represent');
         }
 
-        if (component.componentName === "SliderComponent") {
-            return new SliderComponentView(component);
-        } else if (component.componentName === "BooleanToggleComponent") {
+        // if (component.componentName === "SliderComponent") {
+        //     return new SliderComponentView(component);
+        // } else
+        if (component.componentName === "BooleanToggleComponent") {
             console.log('creating toggler')
             return new BooleanToggleComponentView(component);
         } else if (component.componentName === "PrintComponent") {
@@ -228,43 +229,43 @@ define([
     }
     BooleanToggleComponentView.prototype.objectType = "BooleanToggleComponentView";
 
-    function SliderComponentView(component) {
-        /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
-         * the slider, but not the display of the slider itself. */
-        var that = this;
-         _.extend(this,ComponentView.prototype,{
-            // Show Slider UI
-            click: function(x,y){
-                // Show the slider and overlay. It cleans up itself.
-                var val = component.getOutput("N").getFirstValueOrDefault(),
-                    min = component.getInput("S").getFirstValueOrDefault(),
-                    max = component.getInput("E").getFirstValueOrDefault(),
-                    integers =  component.getInput("I").getFirstValueOrDefault(),
-                    callback = this.sliderUpdateValue;
-                require(["dataFlow/UI/sliderView"],function(SliderView){
-                    // no reference necessary. The slider will clean itself up.
-                    new SliderView(val,min,max,integers,x,y,callback);
-                });
-            },
-            sliderUpdateValue: function(value){
-                // this component uses IOs differently than other components so that the value
-                // can persist successfully, be fed into the slider view, trigger recalculations, etc.
-                component.storeUserData(value);
-                that.displayVals();
-            },
-            displayVals: function(){
-                if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
-                    this.setDisplayLabel(this.component.get('componentPrettyName'));
-                } else {
-                    this.setDisplayLabel(this.component.getOutput("N").getTree().dataAtPath([0]).toString());
-                }
-            }
-        });
-        _.bindAll(this,"click","sliderUpdateValue");
-
-        this.init(component);
-    }
-    SliderComponentView.prototype.objectType = "SliderComponentView";
+    // function SliderComponentView(component) {
+    //     /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
+    //      * the slider, but not the display of the slider itself. */
+    //     var that = this;
+    //      _.extend(this,ComponentView.prototype,{
+    //         // Show Slider UI
+    //         click: function(x,y){
+    //             // Show the slider and overlay. It cleans up itself.
+    //             var val = component.getOutput("N").getFirstValueOrDefault(),
+    //                 min = component.getInput("S").getFirstValueOrDefault(),
+    //                 max = component.getInput("E").getFirstValueOrDefault(),
+    //                 integers =  component.getInput("I").getFirstValueOrDefault(),
+    //                 callback = this.sliderUpdateValue;
+    //             require(["dataFlow/UI/sliderView"],function(SliderView){
+    //                 // no reference necessary. The slider will clean itself up.
+    //                 new SliderView(val,min,max,integers,x,y,callback);
+    //             });
+    //         },
+    //         sliderUpdateValue: function(value){
+    //             // this component uses IOs differently than other components so that the value
+    //             // can persist successfully, be fed into the slider view, trigger recalculations, etc.
+    //             component.storeUserData(value);
+    //             that.displayVals();
+    //         },
+    //         displayVals: function(){
+    //             if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
+    //                 this.setDisplayLabel(this.component.get('componentPrettyName'));
+    //             } else {
+    //                 this.setDisplayLabel(this.component.getOutput("N").getTree().dataAtPath([0]).toString());
+    //             }
+    //         }
+    //     });
+    //     _.bindAll(this,"click","sliderUpdateValue");
+    //
+    //     this.init(component);
+    // }
+    // SliderComponentView.prototype.objectType = "SliderComponentView";
 
     ///////////////////////
     // BEGIN GENERIC COMPONENTVIEW METHODS
