@@ -8,9 +8,9 @@ define([
         "dataFlow/components/numpy_create",
         "dataFlow/components/numpy_simplemath",
         "dataFlow/components/numpy_basics",
-        "dataFlow/components/dataframe_create",
-        "dataFlow/components/dataframe_basics",
         "dataFlow/components/string",
+
+        "dataFlow/json-components/jsonComponentLoader"
 
     ],function(_,
                core,
@@ -21,9 +21,9 @@ define([
                numpy_create,
                numpy_simplemath,
                numpy_basics,
-               dataframe_create,
-               dataframe_basics,
                string,
+
+               jsonComponents
     ){
         var dataFlow = {};
         dataFlow = _.extend(dataFlow,core);
@@ -47,6 +47,7 @@ define([
             // }
         }
 
+        // Older components and more complex components are defined in code, and need to be registered:
         registerModule(tree, "tree");
         registerModule(number, "number");
         registerModule(simplemath, "simplemath");
@@ -54,9 +55,16 @@ define([
         registerModule(outputComponents, "outputComponents");
         registerModule(numpy_simplemath, "numpy_simplemath");
         registerModule(numpy_basics, "numpy_basics");
-        registerModule(dataframe_create, "dataframe_create");
-        registerModule(dataframe_basics, "dataframe_basics");
         registerModule(string, "string");
+
+        // New-style components can be defined simply in json for straightforward cases where a component is a python function
+        // json components already have 'module' specified per-component, so we don't need to 'register' them in the same way
+        _.each(jsonComponents,function (c,cName) {
+            console.log('registering ',cName);
+            const moduleName = c.module;
+            dataFlow["components"][moduleName] = dataFlow["components"][moduleName] || {};
+            dataFlow["components"][moduleName][cName] = c;
+        });
 
         // TODO: Use this ONCE to create an index, then use the index ?
         dataFlow.iterateComponents = function(callbackNameFunction){
