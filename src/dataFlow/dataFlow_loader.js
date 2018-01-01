@@ -60,7 +60,6 @@ define([
         // New-style components can be defined simply in json for straightforward cases where a component is a python function
         // json components already have 'module' specified per-component, so we don't need to 'register' them in the same way
         _.each(jsonComponents,function (c,cName) {
-            console.log('registering ',cName);
             const moduleName = c.module;
             dataFlow["components"][moduleName] = dataFlow["components"][moduleName] || {};
             dataFlow["components"][moduleName][cName] = c;
