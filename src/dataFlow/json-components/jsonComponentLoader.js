@@ -4,19 +4,21 @@ define([
 
     "dataFlow/json-components/pd_dataframe",
     "dataFlow/json-components/base_numeric",
+    "dataFlow/json-components/numpy",
 ],function(
     _,
     DataFlow,
 
     pd_dataframe,
-    base_numeric
+    base_numeric,
+    numpy
 ){
     // This module parses components defined in JSON format, creating a function for each, initializing it, and then returning
     // a list of component object prototypes that can be loaded into Orchestra
 
     const allComponentsJson = pd_dataframe
                                 .concat(base_numeric)
-                                // .concat(module3) // etc
+                                .concat(numpy)
     ;
     let components = {};
 

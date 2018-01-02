@@ -4,9 +4,6 @@ define([
         "dataFlow/components/outputComponents",
         "dataFlow/components/number",
         "dataFlow/components/treeComponents",
-        "dataFlow/components/numpy_create",
-        "dataFlow/components/numpy_simplemath",
-        "dataFlow/components/numpy_basics",
         "dataFlow/components/string",
 
         "dataFlow/json-components/jsonComponentLoader"
@@ -16,9 +13,6 @@ define([
                outputComponents,
                number,
                tree,
-               numpy_create,
-               numpy_simplemath,
-               numpy_basics,
                string,
 
                jsonComponents
@@ -48,10 +42,7 @@ define([
         // Older components and more complex components are defined in code, and need to be registered:
         registerModule(tree, "tree");
         registerModule(number, "number");
-        registerModule(numpy_create, "numpy_create");
         registerModule(outputComponents, "outputComponents");
-        registerModule(numpy_simplemath, "numpy_simplemath");
-        registerModule(numpy_basics, "numpy_basics");
         registerModule(string, "string");
 
         // New-style components can be defined simply in json for straightforward cases where a component is a python function
