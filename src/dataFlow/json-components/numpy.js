@@ -180,7 +180,6 @@ define(["dataFlow/core"],function(DataFlow){
             ],
             pythonTemplate: "<%= RESULT %> = np.sin(<%= IN_A %>)\n"
         },
-
         {
             functionName: "NumpyCos",
             componentPrettyName: "cos(A)",
