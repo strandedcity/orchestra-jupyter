@@ -2,19 +2,21 @@ define([
     "underscore",
     "dataFlow/core",
 
-    "dataFlow/json-components/pd_dataframe"
+    "dataFlow/json-components/pd_dataframe",
+    "dataFlow/json-components/base_numeric",
 ],function(
     _,
     DataFlow,
 
-    pd_dataframe
+    pd_dataframe,
+    base_numeric
 ){
     // This module parses components defined in JSON format, creating a function for each, initializing it, and then returning
     // a list of component object prototypes that can be loaded into Orchestra
 
     const allComponentsJson = pd_dataframe
-        // .concat(module2)
-        // .concat(module3) // etc
+                                .concat(base_numeric)
+                                // .concat(module3) // etc
     ;
     let components = {};
 
@@ -26,9 +28,7 @@ define([
                         componentPrettyName: c.componentPrettyName
                     }, opts || {},{
                         inputs: this.createIObjectsFromJSON(c.inputs, opts, "inputs"),
-                        outputs: this.createIObjectsFromJSON(c.outputs, opts, "output"),
-                        // OUTPUTS PLURAL?
-
+                        outputs: this.createIObjectsFromJSON(c.outputs, opts, "outputs"),
                         pythonTemplate: c.pythonTemplate
                     });
 
@@ -42,7 +42,7 @@ define([
             });
         } catch (e) {
             console.error("One of the component definitions could not be parsed correctly!");
-            console.error(cmptJson);
+            console.error(c);
             console.error(e);
         }
     });

@@ -3,7 +3,6 @@ define([
         "dataFlow/core",
         "dataFlow/components/outputComponents",
         "dataFlow/components/number",
-        "dataFlow/components/simplemath",
         "dataFlow/components/treeComponents",
         "dataFlow/components/numpy_create",
         "dataFlow/components/numpy_simplemath",
@@ -16,7 +15,6 @@ define([
                core,
                outputComponents,
                number,
-               simplemath,
                tree,
                numpy_create,
                numpy_simplemath,
@@ -50,7 +48,6 @@ define([
         // Older components and more complex components are defined in code, and need to be registered:
         registerModule(tree, "tree");
         registerModule(number, "number");
-        registerModule(simplemath, "simplemath");
         registerModule(numpy_create, "numpy_create");
         registerModule(outputComponents, "outputComponents");
         registerModule(numpy_simplemath, "numpy_simplemath");
