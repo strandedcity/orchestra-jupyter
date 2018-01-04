@@ -124,6 +124,18 @@ define([
             // TODO ... handle booleans
             console.warn("NOT IMPLEMENTED: PARSING FOR BOOLEANS");
             return true;
+        } else if (this.dataType === ENUMS.OUTPUT_TYPES.WILD) {
+            // Try to parse as a number. If that fails, parse as a string instead.
+            return _.map(_.filter(this.dataArray, function(itm){
+                return !_.isEmpty(itm) && !_.isUndefined(itm[0]) && !_.isNull(itm[0]);
+            }),function(data){
+                var numberAttempt = Number(data[0]);
+                if (!_.isNaN(numberAttempt)) {
+                    return numberAttempt;
+                } else {
+                    return data[0];
+                }
+            });
         }
 
     };

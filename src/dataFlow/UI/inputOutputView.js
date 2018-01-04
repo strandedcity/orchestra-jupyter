@@ -60,7 +60,8 @@ define([
         this.click = function(x,y){
             if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER &&
                 that.model.type !== ENUMS.OUTPUT_TYPES.BOOLEAN &&
-                that.model.type !== ENUMS.OUTPUT_TYPES.STRING) return;
+                that.model.type !== ENUMS.OUTPUT_TYPES.STRING &&
+                that.model.type !== ENUMS.OUTPUT_TYPES.WILD) return;
 
             // Show the table-number-enterer UI. It cleans up after itself.
             var data = that.model.get('persistedData') || new DataTree(),
