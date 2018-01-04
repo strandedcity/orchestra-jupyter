@@ -166,7 +166,7 @@ define([
                     }
 
 
-                    cell.code_mirror.setValue(transcript);
+                    cell.code_mirror.setValue(ORCHESTRA_HEADS_UP_MESSAGE + "\n" + transcript);
                     orchestra_application.close();
                     closeButton.off();
                     closeButton.hide(250,function () {
