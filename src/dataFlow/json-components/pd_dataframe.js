@@ -107,7 +107,39 @@ define(["dataFlow/core"],function(DataFlow){
                 {shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "A copy of the data frame"}
             ],
             pythonTemplate: "<%= RESULT %> = <%= IN_D %>.copy()\n"
-        }
+        },
+        {
+            functionName: "DataframeSample",
+            componentPrettyName: "DF Sample",
+            module: "pandas",
+            label: "pd.dataframe.sample",
+            desc: "Select a sample of the data from a Pandas Dataframe. Specify the number of records you'd like to sample from the whole dataframe",
+            inputs: [
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe to sample"},
+                {required: false, default: 1, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Number of records to return"}
+            ],
+            outputs: [
+                {shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Sampled Data"}
+            ],
+            pythonTemplate: "<%= RESULT %> = <%= IN_D %>.sample(<%= IN_N %>)\n"
+        },
+        // {
+        //     functionName: "DataframeMask",
+        //     componentPrettyName: "Dataframe Mask",
+        //     module: "pandas",
+        //     label: "pd.dataframe.mask",
+        //     desc: "Select rows from a Pandas Dataframe Matching a condition. If you want to select rows whose value in the population column is greater than 100000, you would enter 'population', '>' and '100000' in the three lower inputs",
+        //     inputs: [
+        //         {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe from which rows should be selected"},
+        //         {required: true, shortName: "I", type: DataFlow.OUTPUT_TYPES.WILD, desc: "Index of Column to mask"},
+        //         {required: false, shortName: "C", default: "=", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Condition (=, !=, <, or >)"},
+        //         {required: false, shortName: "V", default: 0, type: DataFlow.OUTPUT_TYPES.STRING, desc: "Value for Comparison"},
+        //     ],
+        //     outputs: [
+        //         {shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME}
+        //     ],
+        //     pythonTemplate: "<%= RESULT %> = <%= IN_D %>[<%= IN_D %>[] ]\n" // double [[ ]] is the 'getitem' syntax: https://stackoverflow.com/questions/11285613/selecting-columns-in-a-pandas-dataframe
+        // }
     ]
 });
 

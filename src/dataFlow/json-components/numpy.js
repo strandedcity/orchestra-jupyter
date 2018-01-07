@@ -117,7 +117,7 @@ define(["dataFlow/core"],function(DataFlow){
             outputs: [
                 {shortName: "N", type: DataFlow.OUTPUT_TYPES.WILD}
             ],
-            pythonTemplate: "<%= RESULT %> = (<%= IN_A %>[<%= IN_I %>], <%= IN_A %>[<%= IN_I %>])\n" // "just works" if I = [2,3,4], but outputs an array in that case
+            pythonTemplate: "<%= RESULT %> = <%= IN_A %>[<%= IN_I %>]\n" // "just works" if I = [2,3,4], but outputs an array in that case
         },
         {
             functionName: "NumpyExtractColumn",
