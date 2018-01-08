@@ -6,6 +6,9 @@ define([
     "dataFlow/enums"
 ],function($,_,DataTree,Handsontable,ENUMS){
 
+    // just a thing we need for one of the data types that can be entered...
+    const validComparators = _.keys(ENUMS.COMPARATORS);
+
     function TableView(data,x,y,callback,dataType,readOnly){
         this.init.apply(this,arguments);
     }
@@ -22,6 +25,7 @@ define([
     var mapIODataTypeToTableCellTypes = {};
     mapIODataTypeToTableCellTypes[ENUMS.OUTPUT_TYPES.NUMBER] = {type: "numeric"};
     mapIODataTypeToTableCellTypes[ENUMS.OUTPUT_TYPES.STRING] = {type: "text"};
+    mapIODataTypeToTableCellTypes[ENUMS.OUTPUT_TYPES.COMPARATOR] = {type: "dropdown", source: [""].concat(validComparators)};
     mapIODataTypeToTableCellTypes[ENUMS.OUTPUT_TYPES.BOOLEAN] = {type: "checkbox"};
 
     TableView.prototype.init = function(data,x,y,callback,dataType,readOnly){
@@ -117,6 +121,12 @@ define([
         } else if (this.dataType === ENUMS.OUTPUT_TYPES.STRING) {
             return _.map(_.filter(this.dataArray, function(itm){
                 return !_.isEmpty(itm) && !_.isEmpty(itm[0]);
+            }),function(stringdata){
+                return stringdata[0];
+            });
+        }  else if (this.dataType === ENUMS.OUTPUT_TYPES.COMPARATOR) {
+            return _.map(_.filter(this.dataArray, function(itm){
+                return !_.isEmpty(itm) && !_.isEmpty(itm[0]) && _.contains(validComparators,itm[0]);
             }),function(stringdata){
                 return stringdata[0];
             });

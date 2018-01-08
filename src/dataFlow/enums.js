@@ -28,7 +28,7 @@ define([],function(){
             DATAFRAME: 4,
             WILD: 5,
             NULL: 6,
-        UNUSED1: 7,     // missing indexes causes problems eg: with the "flatten" component
+            COMPARATOR: 7,
             ARRAY: 8,
         },
         KEYS: {
@@ -48,9 +48,32 @@ define([],function(){
                 4: "Pandas Dataframe",
                 5: "(Any Data Type)",
                 6: "Null",
-                7: "Unused",
+                7: "Comparison Operator",
                 8: "List / Array"
             }
-        }
+        },
+
+        // Comparators are handled in Javascript land as string literals that are then subbed in directly to python statements
+        // This is because it's not easily possible to set a comparator to a variable, then build a statement out of it.
+        // Consider "a < b". In that statement, a and b are variables. But if i wanted to make "<" a variable in Python,
+        // I need to use the built-in "operator" module. Here's an example of generated python for masking a Dataframe
+        // using an operator that's first persisted to a variable:
+        // import operator
+        // opFunction = operator.gt
+        // print( DF[ opFunction( DF[fieldname], val) ] ) # equivalent to DF [ DF[fieldname] > val ], except I can store ">" to a variable that can be passed around Orchestra
+        COMPARATORS: { //https://docs.python.org/2/library/operator.html
+            "==": "op.eq",
+            "!=": "op.ne",
+            "<": "op.lt",
+            ">": "op.gt",
+            ">=": "op.ge",
+            "<=": "op.le",
+            "is": "is_",
+            "is not": "is_not"
+        },
+        // BOOLEANS: [
+        //     "True",
+        //     "False"
+        // ]
     };
 });

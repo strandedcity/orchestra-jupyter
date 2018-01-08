@@ -61,7 +61,8 @@ define([
             if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER &&
                 that.model.type !== ENUMS.OUTPUT_TYPES.BOOLEAN &&
                 that.model.type !== ENUMS.OUTPUT_TYPES.STRING &&
-                that.model.type !== ENUMS.OUTPUT_TYPES.WILD) return;
+                that.model.type !== ENUMS.OUTPUT_TYPES.WILD &&
+                that.model.type !== ENUMS.OUTPUT_TYPES.COMPARATOR) return;
 
             // Show the table-number-enterer UI. It cleans up after itself.
             var data = that.model.get('persistedData') || new DataTree(),

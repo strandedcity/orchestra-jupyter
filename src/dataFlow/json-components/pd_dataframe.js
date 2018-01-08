@@ -1,4 +1,4 @@
-define(["dataFlow/core"],function(DataFlow){
+define(["dataFlow/core", "dataFlow/enums"],function(DataFlow,ENUMS){
 
     // Handy for testing... iris CSV as a url:
     // https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546eaee765268bf2f487608c537c05e22e4b221/iris.csv
@@ -123,23 +123,25 @@ define(["dataFlow/core"],function(DataFlow){
             ],
             pythonTemplate: "<%= RESULT %> = <%= IN_D %>.sample(<%= IN_N %>)\n"
         },
-        // {
-        //     functionName: "DataframeMask",
-        //     componentPrettyName: "Dataframe Mask",
-        //     module: "pandas",
-        //     label: "pd.dataframe.mask",
-        //     desc: "Select rows from a Pandas Dataframe Matching a condition. If you want to select rows whose value in the population column is greater than 100000, you would enter 'population', '>' and '100000' in the three lower inputs",
-        //     inputs: [
-        //         {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe from which rows should be selected"},
-        //         {required: true, shortName: "I", type: DataFlow.OUTPUT_TYPES.WILD, desc: "Index of Column to mask"},
-        //         {required: false, shortName: "C", default: "=", type: DataFlow.OUTPUT_TYPES.STRING, desc: "Condition (=, !=, <, or >)"},
-        //         {required: false, shortName: "V", default: 0, type: DataFlow.OUTPUT_TYPES.STRING, desc: "Value for Comparison"},
-        //     ],
-        //     outputs: [
-        //         {shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME}
-        //     ],
-        //     pythonTemplate: "<%= RESULT %> = <%= IN_D %>[<%= IN_D %>[] ]\n" // double [[ ]] is the 'getitem' syntax: https://stackoverflow.com/questions/11285613/selecting-columns-in-a-pandas-dataframe
-        // }
+        {
+            functionName: "DataframeMask",
+            componentPrettyName: "Dataframe Mask",
+            module: "pandas",
+            label: "pd.dataframe.mask",
+            desc: "Select rows from a Pandas Dataframe Matching a condition. If you want to select rows whose value in the population column is greater than 100000, you would enter 'population', '>' and '100000' in the three lower inputs",
+            inputs: [
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME, desc: "Dataframe from which rows should be selected"},
+                {required: true, shortName: "I", type: DataFlow.OUTPUT_TYPES.WILD, desc: "Index Column to mask"},
+                {required: false, shortName: "C", default: ">", type: DataFlow.OUTPUT_TYPES.COMPARATOR, desc: "Condition (==, !=, <, or >)"},
+                {required: false, shortName: "V", default: 0, type: DataFlow.OUTPUT_TYPES.WILD, desc: "Value for Comparison"},
+            ],
+            outputs: [
+                {shortName: "D", type: DataFlow.OUTPUT_TYPES.DATAFRAME}
+            ],
+            // If "comparator" is typed directly into the function, we'll have a string literal we need to look up in ENUMS.
+            // If it's wired up, we'll have a variable name representing a comparator function
+            pythonTemplate: '<%= RESULT %> = <%= IN_D %>[<% var inputString = IN_C.replace(/(^"|"$)/g,""); var op = DATAFLOW.COMPARATORS[inputString] || inputString; print(op) %>(<%= IN_D %>[<%= IN_I %>] ,<%= IN_V %>)]\n'
+        }
     ]
 });
 

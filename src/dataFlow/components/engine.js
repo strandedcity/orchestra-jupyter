@@ -97,6 +97,7 @@ define([], function(){
             "import pandas as pd\n"+
             "import matplotlib as mpl\n"+
             "import matplotlib.pyplot as plt\n"+
+            "import operator as op\n"+
             "%matplotlib inline\n";
 
         this.resetTranscript = function(){

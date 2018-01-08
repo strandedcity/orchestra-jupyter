@@ -349,11 +349,31 @@ define([
                 var resolvedValues = arguments[0];
                 return new Promise(function(resolve,reject){
                     var outputVariable = that.getOutputVariableName();
-                    var templateVars = {RESULT: outputVariable};
+                    var templateVars = {
+                        RESULT: outputVariable,
+                        DATAFLOW: ENUMS
+                    };
                     _.each(that.inputs,function(input,index){
                         templateVars["IN_"+input.shortName] = resolvedValues[index];
                     });
-                    var pythonCode = that.pythonTemplateFn(templateVars);
+
+                    var pythonCode;
+                    try {
+                        pythonCode = that.pythonTemplateFn(templateVars);
+                    } catch (e) {
+                        // This makes it possible to show _JavaScript_ errors to the user in the same way we show them
+                        // _Python_ errors. JavaScript errors are definitely Orchestra bugs, but that doesn't mean there
+                        // shouldn't be any display to the user to help diagnose what's going on.
+                        console.error(e);
+                        reject({
+                            ename: "JavaScript Error",
+                            evalue: e.toString()
+                        });
+
+                        // promise has been rejected, but since we caught the error the python engine will still try to run
+                        // this error is definitely fatal, so I'm just going to re-throw it (even though it won't excape the promise)
+                        throw(e);
+                    }
 
                     PythonEngine.execute(pythonCode, {
                         statusSet: function(status){/* */},
