@@ -93,6 +93,8 @@ define([], function(){
         var that = this;
 
         var importStatements =
+            "from __future__ import absolute_import, division, print_function\n" +
+            "from builtins import *\n"+
             "import numpy as np\n"+
             "import pandas as pd\n"+
             "import matplotlib as mpl\n"+
