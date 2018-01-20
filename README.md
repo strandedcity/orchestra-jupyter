@@ -5,6 +5,13 @@ Users more deeply familiar with Python code can use a hybrid workflow that "expo
 
 Even as Orchestra offers greatly increased accessibility for data manipulation tasks, it does not force any compromises on those who wish to use the full power of Python.
 
+### Run Via Docker
+- `cd` into the directory where you've cloned this repo
+- `docker build . -t orchestrajupyter`
+- `docker run -p 8888:8888 orchestrajupyter`
+- You'll see a link printed to the command line like: http://localhost:8888/?token=f716322e4001692d4b6bb346b8e8d23b3af1db58780af32f
+- Click and go! (But be aware that this is just a "demo" environment -- your files will not be persisted after the container stops!)
+
 ### Installation
 
 Assuming you already have Jupyter and Python3 Installed, just run these commands:
