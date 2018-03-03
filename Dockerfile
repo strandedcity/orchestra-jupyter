@@ -185,6 +185,13 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
 
 USER root
 
+# Install dnsmasq and configure it for wildcard *.orchestradatascience.com resolving to localhost
+# This will let us generate a valid login cookie via curl from inside the docker container
+RUN apk --no-cache add dnsmasq  \
+    && echo "address=/orchestradatascience.com/127.0.0.1" > /etc/dnsmasq.conf
+EXPOSE 53 53/udp
+ENTRYPOINT ["dnsmasq"]
+
 RUN jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra.js && \
 	jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries.js && \
 	jupyter nbextension enable orchestra
