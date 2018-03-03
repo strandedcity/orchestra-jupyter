@@ -110,6 +110,8 @@ CMD ["start-notebook.sh"]
 # Add local files as late as possible to avoid cache busting
 COPY getToken.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/getToken.sh
+COPY getSessionCookie.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/getSessionCookie.sh
 COPY start-notebook.sh /usr/local/bin/
 COPY start.sh /usr/local/bin/
 COPY start-singleuser.sh /usr/local/bin/
