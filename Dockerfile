@@ -1,15 +1,8 @@
+# docker build . -t orchestra
+# then just push origin to get the docker build
+
 FROM alpine:latest
 MAINTAINER Phil Seaton <phil@phil-seaton.com>
-
-ARG VCS_REF
-
-LABEL org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/show0k/alpine-jupyter-docker/tree/master/alpine-miniconda"
-
-# Inspired by :
-# * https://github.com/jupyter/docker-stacks
-# * https://github.com/CognitiveScale/alpine-miniconda
-
 
 # Install glibc and useful packages
 RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
@@ -118,6 +111,8 @@ ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["start-notebook.sh"]
 
 # Add local files as late as possible to avoid cache busting
+COPY getToken.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/getToken.sh
 COPY start-notebook.sh /usr/local/bin/
 COPY start.sh /usr/local/bin/
 COPY start-singleuser.sh /usr/local/bin/
