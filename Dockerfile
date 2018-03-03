@@ -1,6 +1,3 @@
-# docker build . -t orchestra
-# then just push origin to get the docker build
-
 FROM alpine:latest
 MAINTAINER Phil Seaton <phil@phil-seaton.com>
 
