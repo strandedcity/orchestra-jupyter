@@ -10,8 +10,7 @@ c = get_config()
 c.NotebookApp.ip = '*'
 c.NotebookApp.open_browser = False
 c.NotebookApp.disable_check_xsrf = True # to enable fetching of login cookies via script
-c.NotebookApp.port = 80 # so that a port number is not included in the username fetched ^
-#c.NotebookApp.port = 8888
+c.NotebookApp.port = 8888
 
 # Set a certificate if USE_HTTPS is set to any value
 if 'USE_HTTPS' in os.environ:

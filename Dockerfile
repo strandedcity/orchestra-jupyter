@@ -4,6 +4,7 @@ MAINTAINER Phil Seaton <phil@phil-seaton.com>
 # Install glibc and useful packages
 RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk --update add \
+    dnsmasq \
     bash \
     git \
     curl \
@@ -81,18 +82,6 @@ RUN cd /tmp && \
     $CONDA_DIR/bin/conda install --yes conda==$MINICONDA_VER
 
 
-USER root
-
-
-# Configure container startup as root
-WORKDIR /home/$NB_USER/work
-ENTRYPOINT ["/sbin/tini", "--"]
-CMD [ "/bin/bash" ]
-
-# Switch back to jovyan to avoid accidental container runs as root
-USER jovyan
-
-
 # Install Jupyter notebook as jovyan
 RUN conda install --yes \
     'notebook=5.3*' \
@@ -100,29 +89,6 @@ RUN conda install --yes \
     ipywidgets \
     && conda clean -yt
 
-USER root
-
-# Configure container startup as root
-WORKDIR /home/$NB_USER/work
-ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["start-notebook.sh"]
-
-# Add local files as late as possible to avoid cache busting
-COPY getToken.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/getToken.sh
-COPY getSessionCookie.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/getSessionCookie.sh
-COPY start-notebook.sh /usr/local/bin/
-COPY start.sh /usr/local/bin/
-COPY start-singleuser.sh /usr/local/bin/
-COPY jupyter_notebook_config.py /home/$NB_USER/.jupyter/
-RUN chown -R $NB_USER:users /home/$NB_USER/.jupyter
-RUN chmod +x /usr/local/bin/start-notebook.sh
-RUN chmod +x /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start-singleuser.sh
-
-
-USER $NB_USER
 
 # Install Python 3 packages
 # Remove pyqt and qt pulled in for matplotlib since we're only ever going to
@@ -162,9 +128,7 @@ RUN conda install --quiet --yes \
     npm cache clean --force && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging
 
-
-#    && \
-#    /usr/local/bin/fix-permissions.sh $CONDA_DIR
+#RUN pip install supervisor
 
 
 # Install facets which does not have a pip or conda package at the moment
@@ -187,10 +151,28 @@ USER root
 
 # Install dnsmasq and configure it for wildcard *.orchestradatascience.com resolving to localhost
 # This will let us generate a valid login cookie via curl from inside the docker container
-RUN apk --no-cache add dnsmasq  \
-    && echo "address=/orchestradatascience.com/127.0.0.1" > /etc/dnsmasq.conf
+#RUN apk --no-cache add dnsmasq
+
+RUN echo "nameserver 127.0.0.1" > /etc/resolv.conf
+
+RUN echo "user=root" >> /etc/dnsmasq.conf && \
+    echo "address=/orchestradatascience.com/127.0.0.1" >> /etc/dnsmasq.conf
+
 EXPOSE 53 53/udp
-ENTRYPOINT ["dnsmasq"]
+
+# Add local files as late as possible to avoid cache busting
+COPY getToken.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/getToken.sh
+COPY getSessionCookie.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/getSessionCookie.sh
+COPY start-notebook.sh /usr/local/bin/
+COPY start.sh /usr/local/bin/
+COPY start-singleuser.sh /usr/local/bin/
+COPY jupyter_notebook_config.py /home/$NB_USER/.jupyter/
+RUN chown -R $NB_USER:users /home/$NB_USER/.jupyter
+RUN chmod +x /usr/local/bin/start-notebook.sh
+RUN chmod +x /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start-singleuser.sh
 
 RUN jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra.js && \
 	jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries.js && \
@@ -198,5 +180,11 @@ RUN jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyte
 
 EXPOSE 80
 
-USER $NB_USER
+# Configure container startup as root
+WORKDIR /home/$NB_USER/work
+#ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["start-notebook.sh"]
+
+#USER $NB_USER
 
