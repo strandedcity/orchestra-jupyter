@@ -196,7 +196,7 @@ RUN jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyte
 	jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries.js && \
 	jupyter nbextension enable orchestra
 
-EXPOSE 8888
+EXPOSE 80
 
 USER $NB_USER
 
