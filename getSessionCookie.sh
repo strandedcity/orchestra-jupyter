@@ -12,7 +12,7 @@ then
     tokenVal="${BASH_REMATCH[1]}"
     # echo "TOKEN: ${tokenVal}" #debug
 else
-    # echo "NO MATCH"
+    echo "NO MATCH"
 fi
 
 cmd="curl 'http://${ORCHESTRA_SUBDOMAIN}.orchestradatascience.com/login?next=%2Ftree%3F'   -H 'content-type: application/x-www-form-urlencoded'  --data 'password=${tokenVal}' -is | grep 'Set-Cookie' | sed -e \"s/^Set-Cookie: //\" | sed -e \"s/HttpOnly; //\" "
