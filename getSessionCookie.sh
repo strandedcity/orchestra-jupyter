@@ -10,7 +10,7 @@ regex=".*token=([0-9a-zA-Z]*) "
 if [[ $OUTPUT =~ $regex ]]
 then
     tokenVal="${BASH_REMATCH[1]}"
-    echo "${tokenVal}"
+    echo "TOKEN: ${tokenVal}"
 else
     echo "NO MATCH"
 fi
@@ -20,6 +20,14 @@ fi
 
 # THIS CURL WORKS, BUT I NEED TO MAKE IT WITH THE RIGHT HOST HEADER SO THAT LOGIN DOESN"T ATTACH TO LOCALHOST, WHICH IS USELESS PUBLICLY
 # curl 'http://localhost:8888/login?next=%2Ftree%3F'   -H 'content-type: application/x-www-form-urlencoded'  --data 'password=c5bd837f526c0638c7a1096104d11c843bb636da0338e0f1' -is | grep 'Set-Cookie'
+
+#export ORCHESTRA_SUBDOMAIN
+
+cmd="curl 'http://${ORCHESTRA_SUBDOMAIN}.orchestradatascience.com/login?next=%2Ftree%3F'   -H 'content-type: application/x-www-form-urlencoded'  --data 'password=${tokenVal}' -is | grep 'Set-Cookie'"
+
+echo "CMD: ${cmd}"
+
+eval $cmd
 
 # Response = Set-Cookie: username-localhost-8888="2|1:0|10:1520110258|23:username-localhost-8888|44:Y2Q3YTFjMzIxZTI5NGE0ZjhiZTU0ZTIxOWE2OWY3ZWI=|fd3dc9b5b34a53fb56fb2422daaa3db390fe8ef2a8a6ff8e3467605a210dcf80"; expires=Mon, 02 Apr 2018 20:50:58 GMT; HttpOnly; Path=/
 
