@@ -4,6 +4,7 @@ MAINTAINER Phil Seaton <phil@phil-seaton.com>
 # Install glibc and useful packages
 RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk --update add \
+    nginx \
     dnsmasq \
     bash \
     git \
@@ -39,14 +40,6 @@ ENV CONDA_DIR=/opt/conda \
 ENV PATH=$CONDA_DIR/bin:$PATH \
     HOME=/home/$NB_USER
 
-# Create jovyan user with UID=1000 and in the 'users' group
-# and make sure these dirs are writable by the `users` group.
-#RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
-#    mkdir -p $CONDA_DIR && \
-#    chown $NB_USER:$NB_GID $CONDA_DIR && \
-#    fix-permissions $HOME && \
-#    fix-permissions $CONDA_DIR
-
 
 COPY fix-permissions.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/fix-permissions.sh
@@ -81,19 +74,13 @@ RUN cd /tmp && \
     rm miniconda.sh && \
     $CONDA_DIR/bin/conda install --yes conda==$MINICONDA_VER
 
-
-# Install Jupyter notebook as jovyan
-RUN conda install --yes \
-    'notebook=5.3*' \
-    terminado \
-    ipywidgets \
-    && conda clean -yt
-
-
 # Install Python 3 packages
 # Remove pyqt and qt pulled in for matplotlib since we're only ever going to
 # use notebook-friendly backends in these images
 RUN conda install --quiet --yes \
+    'notebook=5.3*' \
+    'terminado' \
+    'ipywidgets' \
     'nomkl' \
     'ipywidgets=7.0*' \
     'pandas=0.19*' \
@@ -128,9 +115,6 @@ RUN conda install --quiet --yes \
     npm cache clean --force && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging
 
-#RUN pip install supervisor
-
-
 # Install facets which does not have a pip or conda package at the moment
 # On alpine, will require installing git first, I think.
 # apk update && apk upgrade && \
@@ -149,42 +133,49 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
 
 USER root
 
-# Install dnsmasq and configure it for wildcard *.orchestradatascience.com resolving to localhost
-# This will let us generate a valid login cookie via curl from inside the docker container
-#RUN apk --no-cache add dnsmasq
-
-RUN echo "nameserver 127.0.0.1" > /etc/resolv.conf
-
+# Configure dnsmasq to resolve *.orchestradatacience.com urls (all subdomains) back to the container
+# This will enable a bash script to run a curl request that can get a cookie that's ready to go in the browser
+# Ie, I can login on the backend using Jupyter's normal authentication mechanism, and never
+# have to show the user the Jupyter login page / token nonsense
 RUN echo "user=root" >> /etc/dnsmasq.conf && \
     echo "address=/orchestradatascience.com/127.0.0.1" >> /etc/dnsmasq.conf
 
-EXPOSE 53 53/udp
+# The above setup also relies on forwarding port 80 -> 8888 for internal requests. Note that the container's port 80
+# is NOT exposed! This is nginx strictly as a port forwarder:
+COPY nginx.conf /etc/nginx/
+RUN adduser -D -g 'www' www && \
+    mkdir /www && \
+    chown -R www:www /var/lib/nginx && \
+    chown -R www:www /www && \
+    mkdir /run/nginx && \
+    touch /run/nginx/nginx.pid
+
 
 # Add local files as late as possible to avoid cache busting
-COPY getToken.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/getToken.sh
-COPY getSessionCookie.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/getSessionCookie.sh
-COPY start-notebook.sh /usr/local/bin/
-COPY start.sh /usr/local/bin/
-COPY start-singleuser.sh /usr/local/bin/
+COPY    getToken.sh \
+        getSessionCookie.sh \
+        start-notebook.sh \
+        start.sh \
+        /usr/local/bin/
 COPY jupyter_notebook_config.py /home/$NB_USER/.jupyter/
-RUN chown -R $NB_USER:users /home/$NB_USER/.jupyter
-RUN chmod +x /usr/local/bin/start-notebook.sh
-RUN chmod +x /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start-singleuser.sh
+RUN chown -R $NB_USER:users /home/$NB_USER/.jupyter && \
+    chmod +x /usr/local/bin/start-notebook.sh && \
+    chmod +x /usr/local/bin/start.sh && \
+    chmod +x /usr/local/bin/getSessionCookie.sh && \
+    chmod +x /usr/local/bin/getToken.sh
 
 RUN jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra.js && \
 	jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra-libraries.js && \
 	jupyter nbextension enable orchestra
 
-EXPOSE 80
+EXPOSE 8888 53 53/udp
 
 # Configure container startup as root
 WORKDIR /home/$NB_USER/work
-#ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["start-notebook.sh"]
 
+# start-notebook.sh has been modified to run as a wrapper script
+# it must run as root, but it'll run jupyter as jovyan
 #USER $NB_USER
 
