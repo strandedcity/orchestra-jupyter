@@ -10,11 +10,12 @@ Even as Orchestra offers greatly increased accessibility for data manipulation t
 - `docker build . -t orchestrajupyter`
 - `docker run -p 8888:8888 orchestrajupyter`
 - You'll see a link printed to the command line like: http://localhost:8888/?token=f716322e4001692d4b6bb346b8e8d23b3af1db58780af32f
-- Click and go! (But be aware that this is just a "demo" environment -- your files will not be persisted after the container stops!)
+- Create a new Python3 Jupyter Notebook
+- Click the Jupyter extension (see icon below) and go! (But be aware that this is just a "demo" environment -- your files will not be persisted after the container stops!)
 
 ### Installation
 
-Assuming you already have Jupyter and Python3 Installed, just run these commands:
+Assuming you already have Jupyter and Python3 Installed locally, just run these commands:
 
 ```bash
 jupyter nbextension install https://rawgit.com/strandedcity/orchestra-jupyter/master/dist/orchestra.js
